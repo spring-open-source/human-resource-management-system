@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hardik.flenderson.dto.UserLoginSuccessDto;
 import com.hardik.flenderson.keycloak.TokenService;
 import com.hardik.flenderson.keycloak.dto.KeycloakTokenDto;
 
@@ -16,7 +17,7 @@ public class TokenController {
 	private final TokenService tokenService;
 
 	@GetMapping("v1/get-token/{code}")
-	public KeycloakTokenDto tokenExchangeHandler(@PathVariable(name = "code", required = true) final String code) {
+	public UserLoginSuccessDto tokenExchangeHandler(@PathVariable(name = "code", required = true) final String code) {
 		return tokenService.getAccessToken(code);
 	}
 
@@ -24,6 +25,12 @@ public class TokenController {
 	public String keyCloakUrlGenerationHandler(
 			@PathVariable(name = "accountType", required = true) final String accountType) {
 		return tokenService.getKeyCloakUrl(accountType);
+	}
+
+	@GetMapping("v1/refresh-token/{refreshToken}")
+	public KeycloakTokenDto refreshTokenHandler(
+			@PathVariable(name = "refreshToken", required = true) final String refreshToken) {
+		return tokenService.refreshToken(refreshToken);
 	}
 
 }

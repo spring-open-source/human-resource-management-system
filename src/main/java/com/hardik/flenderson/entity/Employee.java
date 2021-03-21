@@ -58,40 +58,40 @@ public class Employee implements Serializable {
 	@Column(name = "image_url", unique = true)
 	private String imageUrl;
 
-	@Column(name = "gender", nullable = false)
+	@Column(name = "gender", nullable = true)
 	private String gender;
 
-	@Column(name = "date_of_birth", nullable = false)
+	@Column(name = "date_of_birth", nullable = true)
 	private LocalDate dateOfBirth;
 
-	@Column(name = "company_id", nullable = false)
+	@Column(name = "company_id", nullable = true)
 	private UUID companyId;
 
 	@Hidden
 	@Exclude
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "company_id", nullable = false, insertable = false, updatable = false)
+	@JoinColumn(name = "company_id", nullable = true, insertable = false, updatable = false)
 	private Company company;
 
-	@Column(name = "country_id", nullable = false)
+	@Column(name = "country_id", nullable = true)
 	private Integer countryId;
 
 	@Hidden
 	@Exclude
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "country_id", nullable = false, insertable = false, updatable = false)
+	@JoinColumn(name = "country_id", nullable = true, insertable = false, updatable = false)
 	private MasterCountry masterCountry;
 
 	@Column(name = "company_status", nullable = true)
 	private Integer companyStatus;
 
-	@Column(name = "employee_daily_attendance_id", nullable = false)
+	@Column(name = "employee_daily_attendance_id", nullable = true)
 	private UUID employeeDailyAttendanceId;
 
 	@Hidden
 	@Exclude
 	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "employee_daily_attendance_id", referencedColumnName = "id", insertable = false, updatable = false)
+	@JoinColumn(name = "employee_daily_attendance_id", nullable = true,referencedColumnName = "id", insertable = false, updatable = false)
 	private EmployeeDailyAttendance employeeDailyAttendance;
 
 	@Column(name = "created_at", nullable = false, insertable = false, updatable = false)
