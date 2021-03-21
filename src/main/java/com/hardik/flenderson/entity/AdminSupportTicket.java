@@ -27,6 +27,9 @@ public class AdminSupportTicket implements Serializable {
 	
 	@Column(name = "is_active", nullable = false)
 	private Boolean isActive;
+
+	@Column(name = "raised_by_name", nullable = false)
+	private String raisedByName;
 	
 	@Column(name = "raised_by_email", nullable = false)
 	private String raisedByEmail;

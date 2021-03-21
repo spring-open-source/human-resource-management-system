@@ -2,6 +2,7 @@ CREATE TABLE admin_support_tickets(
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   is_active BOOLEAN NOT NULL,
   raised_by_email CHARACTER VARYING(255) NOT NULL,
+  raised_by_name CHARACTER VARYING(255) NOT NULL,
   raised_by_account_type CHARACTER VARYING NOT NULL,
   description CHARACTER VARYING(1000) NOT NULL,
   ticket_issue CHARACTER VARYING (200) NOT NULL,

@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public enum AccountType {
 	
-	EMPLOYEE("EMPLOYEE"), MANAGER("MANAGER");
+	EMPLOYEE("EMPLOYEE"), MANAGER("MANAGER"), NOT_REGISTERED("NOT REGISTERED");
 	
 	private final String accountType;
 
