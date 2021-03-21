@@ -15,6 +15,7 @@ import com.hardik.flenderson.dto.UserLoginSuccessDto;
 import com.hardik.flenderson.enums.AccountType;
 import com.hardik.flenderson.keycloak.configuration.KeycloakConfiguration;
 import com.hardik.flenderson.keycloak.dto.KeycloakTokenDto;
+import com.hardik.flenderson.keycloak.request.LogoutUserRequest;
 import com.hardik.flenderson.service.EmployeeService;
 import com.hardik.flenderson.service.ManagerService;
 import com.hardik.flenderson.utility.JwtUtility;
@@ -99,6 +100,24 @@ public class TokenService {
 		return configuration.getDomain() + "/auth/realms/" + configuration.getRealmName()
 				+ "/protocol/openid-connect/auth?client_id=" + configuration.getClientId() + "&redirect_uri="
 				+ configuration.getRedirectUri() + "&response_type=code&scope=" + accountType;
+	}
+
+	public void logout(LogoutUserRequest logoutUserRequest) {
+		final var configuration = keycloakConfiguration.getKeyCloak();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+		map.add("Authorization", "Bearer "+logoutUserRequest.getAccessToken());
+		map.add("refresh_token", logoutUserRequest.getRefreshToken());
+		map.add("client_id", configuration.getClientId());
+		map.add("client_secret", configuration.getClientSecret());
+		
+		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+		
+		restTemplate.postForLocation(configuration.getDomain() + "/auth/realms/"
+				+ configuration.getRealmName() + "/protocol/openid-connect/logout", request);
+		
 	}
 
 }
