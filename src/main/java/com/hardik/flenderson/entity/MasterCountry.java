@@ -39,7 +39,13 @@ public class MasterCountry implements Serializable {
 	@Hidden
 	@Exclude
 	@JsonIgnore
-	@OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "masterCountry", fetch = FetchType.LAZY)
 	private Set<Employee> employees;
+	
+	@Hidden
+	@Exclude
+	@JsonIgnore
+	@OneToMany(mappedBy = "masterCountry", fetch = FetchType.LAZY)
+	private Set<Manager> managers;
 
 }
