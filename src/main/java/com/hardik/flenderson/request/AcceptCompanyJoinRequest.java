@@ -14,5 +14,6 @@ import lombok.Getter;
 public class AcceptCompanyJoinRequest {
 
 	private final UUID employeeId;
+	private final Double monthlySalary;
 	
 }

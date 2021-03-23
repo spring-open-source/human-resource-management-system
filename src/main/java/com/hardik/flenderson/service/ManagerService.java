@@ -1,6 +1,7 @@
 package com.hardik.flenderson.service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -8,11 +9,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.dto.ManagerDetailDto;
+import com.hardik.flenderson.entity.EmployeeDailyAttendance;
 import com.hardik.flenderson.entity.Manager;
+import com.hardik.flenderson.entity.MonthlySalaryDetail;
+import com.hardik.flenderson.entity.RejectedEmployeeCompanyMapping;
 import com.hardik.flenderson.enums.CompanyStatus;
 import com.hardik.flenderson.keycloak.dto.KeycloakUserDto;
+import com.hardik.flenderson.repository.EmployeeDailyAttendanceRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
+import com.hardik.flenderson.repository.MonthlySalaryDetailRepository;
+import com.hardik.flenderson.repository.RejectedEmployeeCompanyMappingRepository;
 import com.hardik.flenderson.request.AcceptCompanyJoinRequest;
 import com.hardik.flenderson.request.ManagerDetailUpdationRequest;
 import com.hardik.flenderson.request.RejectCompanyJoinRequest;
@@ -33,6 +40,12 @@ public class ManagerService {
 	private final EmployeeRepository employeeRepository;
 
 	private final StorageService storageService;
+
+	private final RejectedEmployeeCompanyMappingRepository rejectedEmployeeCompanyMappingRepository;
+
+	private final EmployeeDailyAttendanceRepository employeeDailyAttendanceRepository;
+
+	private final MonthlySalaryDetailRepository monthlySalaryDetailRepository;
 
 	public Manager getManager(KeycloakUserDto keyCloakUser) {
 		if (managerRepository.existsByEmailIdIgnoreCase(keyCloakUser.getEmail()))
@@ -90,23 +103,55 @@ public class ManagerService {
 	public void acceptCompanyJoinRequest(AcceptCompanyJoinRequest acceptCompanyJoinRequest) {
 		final var employee = employeeRepository.findById(acceptCompanyJoinRequest.getEmployeeId()).get();
 		employee.setCompanyStatus(CompanyStatus.IN_COMPANY.getStatusId());
-		employeeRepository.save(employee);
+		final var employeeDailyAttendance = new EmployeeDailyAttendance();
+		employeeDailyAttendance.setDate(LocalDate.now());
+		final var savedEmployeeDailyAttendance = employeeDailyAttendanceRepository.save(employeeDailyAttendance);
+		employee.setEmployeeDailyAttendanceId(savedEmployeeDailyAttendance.getId());
+		final var savedEmployee = employeeRepository.save(employee);
+		final var monthlySalaryDetail = new MonthlySalaryDetail();
+		monthlySalaryDetail.setEmployeeId(savedEmployee.getId());
+		monthlySalaryDetail.setSalary(acceptCompanyJoinRequest.getMonthlySalary());
+		monthlySalaryDetailRepository.save(monthlySalaryDetail);
 	}
 
 	public void rejectCompanyJoinRequest(RejectCompanyJoinRequest rejectCompanyJoinRequest) {
 		final var employee = employeeRepository.findById(rejectCompanyJoinRequest.getEmployeeId()).get();
+		final var company = employee.getCompany();
 		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
 		employee.setCompany(null);
 		employee.setCompanyId(null);
 		employeeRepository.save(employee);
+
+		final var rejectedEmployeeMapping = rejectedEmployeeCompanyMappingRepository
+				.findByEmployeeIdAndCompanyId(employee.getId(), company.getId())
+				.orElse(new RejectedEmployeeCompanyMapping());
+		rejectedEmployeeMapping.setEmployeeId(employee.getId());
+		rejectedEmployeeMapping.setCompanyId(company.getId());
+		rejectedEmployeeMapping.setIsActive(true);
+
+		rejectedEmployeeCompanyMappingRepository.save(rejectedEmployeeMapping);
 	}
 
 	public void removeEmployeeFromCompany(RemoveEmployeeFromCompanyRequest removeEmployeeFromCompanyRequest) {
 		final var employee = employeeRepository.findById(removeEmployeeFromCompanyRequest.getEmployeeId()).get();
+		final var company = employee.getCompany();
 		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
 		employee.setCompany(null);
 		employee.setCompanyId(null);
+		employeeDailyAttendanceRepository.deleteById(employee.getEmployeeDailyAttendanceId());
+		monthlySalaryDetailRepository.delete(monthlySalaryDetailRepository.findByEmployeeId(employee.getId()).get());
+		employee.setEmployeeDailyAttendanceId(null);
+		employee.setEmployeeDailyAttendance(null);
 		employeeRepository.save(employee);
+
+		final var rejectedEmployeeMapping = rejectedEmployeeCompanyMappingRepository
+				.findByEmployeeIdAndCompanyId(employee.getId(), company.getId())
+				.orElse(new RejectedEmployeeCompanyMapping());
+		rejectedEmployeeMapping.setEmployeeId(employee.getId());
+		rejectedEmployeeMapping.setCompanyId(company.getId());
+		rejectedEmployeeMapping.setIsActive(true);
+
+		rejectedEmployeeCompanyMappingRepository.save(rejectedEmployeeMapping);
 	}
 
 }

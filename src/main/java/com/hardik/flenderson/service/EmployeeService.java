@@ -13,6 +13,7 @@ import com.hardik.flenderson.enums.CompanyStatus;
 import com.hardik.flenderson.keycloak.dto.KeycloakUserDto;
 import com.hardik.flenderson.repository.CompanyRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
+import com.hardik.flenderson.repository.RejectedEmployeeCompanyMappingRepository;
 import com.hardik.flenderson.request.CompanyJoinRequest;
 import com.hardik.flenderson.request.EmployeeDetailUpdationRequest;
 import com.hardik.flenderson.storage.StorageService;
@@ -31,6 +32,8 @@ public class EmployeeService {
 	private final StorageService storageService;
 
 	private final CompanyRepository companyRepository;
+
+	private final RejectedEmployeeCompanyMappingRepository rejectedEmployeeCompanyMappingRepository;
 
 	public Employee getEmployee(KeycloakUserDto keyCloakUser) {
 		if (employeeRepository.existsByEmailIdIgnoreCase(keyCloakUser.getEmail()))
@@ -90,6 +93,9 @@ public class EmployeeService {
 		final var company = companyRepository
 				.findByNameAndCompanyCode(companyJoinRequest.getCompanyName(), companyJoinRequest.getCompanyCode())
 				.get();
+		if (rejectedEmployeeCompanyMappingRepository.findByEmployeeIdAndCompanyId(employee.getId(), company.getId())
+				.isPresent())
+			throw new RuntimeException("");
 		employee.setCompanyStatus(CompanyStatus.REQUEST_SENT.getStatusId());
 		employee.setCompanyId(company.getId());
 		employeeRepository.save(employee);
