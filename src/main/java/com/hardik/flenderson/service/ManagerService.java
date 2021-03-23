@@ -9,9 +9,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.dto.ManagerDetailDto;
 import com.hardik.flenderson.entity.Manager;
+import com.hardik.flenderson.enums.CompanyStatus;
 import com.hardik.flenderson.keycloak.dto.KeycloakUserDto;
+import com.hardik.flenderson.repository.EmployeeRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
+import com.hardik.flenderson.request.AcceptCompanyJoinRequest;
 import com.hardik.flenderson.request.ManagerDetailUpdationRequest;
+import com.hardik.flenderson.request.RejectCompanyJoinRequest;
+import com.hardik.flenderson.request.RemoveEmployeeFromCompanyRequest;
 import com.hardik.flenderson.storage.StorageService;
 import com.hardik.flenderson.utility.S3KeyUtility;
 
@@ -24,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ManagerService {
 
 	private final ManagerRepository managerRepository;
+
+	private final EmployeeRepository employeeRepository;
 
 	private final StorageService storageService;
 
@@ -78,6 +85,28 @@ public class ManagerService {
 				.emailId(manager.getEmailId()).firstName(manager.getFirstName()).gender(manager.getGender())
 				.profilePicture(profilePicture).lastName(manager.getLastName()).middleName(manager.getMiddleName())
 				.status(manager.getStatus()).profileCompleted(manager.getGender() == null ? false : true).build();
+	}
+
+	public void acceptCompanyJoinRequest(AcceptCompanyJoinRequest acceptCompanyJoinRequest) {
+		final var employee = employeeRepository.findById(acceptCompanyJoinRequest.getEmployeeId()).get();
+		employee.setCompanyStatus(CompanyStatus.IN_COMPANY.getStatusId());
+		employeeRepository.save(employee);
+	}
+
+	public void rejectCompanyJoinRequest(RejectCompanyJoinRequest rejectCompanyJoinRequest) {
+		final var employee = employeeRepository.findById(rejectCompanyJoinRequest.getEmployeeId()).get();
+		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
+		employee.setCompany(null);
+		employee.setCompanyId(null);
+		employeeRepository.save(employee);
+	}
+
+	public void removeEmployeeFromCompany(RemoveEmployeeFromCompanyRequest removeEmployeeFromCompanyRequest) {
+		final var employee = employeeRepository.findById(removeEmployeeFromCompanyRequest.getEmployeeId()).get();
+		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
+		employee.setCompany(null);
+		employee.setCompanyId(null);
+		employeeRepository.save(employee);
 	}
 
 }

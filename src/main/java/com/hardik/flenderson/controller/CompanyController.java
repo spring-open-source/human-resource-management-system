@@ -65,6 +65,6 @@ public class CompanyController extends AuthenticationInterceptor {
 				.registerModule(new JavaTimeModule())
 				.readValue(companyEventCreationRequest, CompanyEventCreationRequest.class);
 		companyEventService.create(parsedCompanyEventCreationRequest, getUserDetails().getUserId(), eventImage);
-	}
+	}	
 
 }

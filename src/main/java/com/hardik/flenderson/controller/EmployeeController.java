@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.dto.EmployeeDetailDto;
 import com.hardik.flenderson.interceptor.AuthenticationInterceptor;
+import com.hardik.flenderson.request.CompanyJoinRequest;
 import com.hardik.flenderson.request.EmployeeDetailUpdationRequest;
 import com.hardik.flenderson.request.EmployeeIssueCreationRequest;
 import com.hardik.flenderson.service.EmployeeIssueService;
@@ -50,5 +51,15 @@ public class EmployeeController extends AuthenticationInterceptor {
 	public void employeeIssueCreationRequest(
 			@RequestBody(required = true) final EmployeeIssueCreationRequest employeeIssueCreationRequest) {
 		employeeIssueService.create(employeeIssueCreationRequest, getUserDetails().getUserId());
+	}
+
+	@PostMapping("v1/join-company")
+	public void companyJoinRequestHandler(@RequestBody(required = true) final CompanyJoinRequest companyJoinRequest) {
+		employeeService.joinCompanyRequest(companyJoinRequest, getUserDetails().getUserId());
+	}
+	
+	@PostMapping("v1/retract-join-company-request")
+	public void retractCompanyJoinRequestHandler() {
+		employeeService.retractCompanyJoinRequest(getUserDetails().getUserId());
 	}
 }

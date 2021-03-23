@@ -9,8 +9,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.dto.EmployeeDetailDto;
 import com.hardik.flenderson.entity.Employee;
+import com.hardik.flenderson.enums.CompanyStatus;
 import com.hardik.flenderson.keycloak.dto.KeycloakUserDto;
+import com.hardik.flenderson.repository.CompanyRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
+import com.hardik.flenderson.request.CompanyJoinRequest;
 import com.hardik.flenderson.request.EmployeeDetailUpdationRequest;
 import com.hardik.flenderson.storage.StorageService;
 import com.hardik.flenderson.utility.S3KeyUtility;
@@ -26,6 +29,8 @@ public class EmployeeService {
 	private final EmployeeRepository employeeRepository;
 
 	private final StorageService storageService;
+
+	private final CompanyRepository companyRepository;
 
 	public Employee getEmployee(KeycloakUserDto keyCloakUser) {
 		if (employeeRepository.existsByEmailIdIgnoreCase(keyCloakUser.getEmail()))
@@ -78,6 +83,24 @@ public class EmployeeService {
 				.profilePicture(profilePicture).lastName(employee.getLastName()).middleName(employee.getMiddleName())
 				.status(employee.getStatus()).profileCompleted(employee.getGender() == null ? false : true)
 				.companyStatus(employee.getCompanyStatus()).build();
+	}
+
+	public void joinCompanyRequest(CompanyJoinRequest companyJoinRequest, UUID employeeId) {
+		final var employee = employeeRepository.findById(employeeId).get();
+		final var company = companyRepository
+				.findByNameAndCompanyCode(companyJoinRequest.getCompanyName(), companyJoinRequest.getCompanyCode())
+				.get();
+		employee.setCompanyStatus(CompanyStatus.REQUEST_SENT.getStatusId());
+		employee.setCompanyId(company.getId());
+		employeeRepository.save(employee);
+	}
+
+	public void retractCompanyJoinRequest(UUID employeeId) {
+		final var employee = employeeRepository.findById(employeeId).get();
+		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
+		employee.setCompany(null);
+		employee.setCompanyId(null);
+		employeeRepository.save(employee);
 	}
 
 }
