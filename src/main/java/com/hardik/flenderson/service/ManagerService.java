@@ -110,6 +110,8 @@ public class ManagerService {
 		final var savedEmployee = employeeRepository.save(employee);
 		final var monthlySalaryDetail = new MonthlySalaryDetail();
 		monthlySalaryDetail.setEmployeeId(savedEmployee.getId());
+		monthlySalaryDetail.setBonus(0.0);
+		monthlySalaryDetail.setPenalty(0.0);
 		monthlySalaryDetail.setSalary(acceptCompanyJoinRequest.getMonthlySalary());
 		monthlySalaryDetailRepository.save(monthlySalaryDetail);
 	}
