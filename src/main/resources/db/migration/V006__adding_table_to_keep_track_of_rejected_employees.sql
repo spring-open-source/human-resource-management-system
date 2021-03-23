@@ -17,9 +17,9 @@ CREATE TABLE rejected_employee_company_mapping(
 );
 
 CREATE trigger rejected_employee_creation_timestamp_trigger
-   BEFORE INSERT ON rejected_employees_company_mapping
+   BEFORE INSERT ON rejected_employee_company_mapping
    for each row EXECUTE procedure creation_timestamp_handler();
    
 CREATE trigger rejected_employee_updation_timestamp_trigger
-   BEFORE UPDATE ON rejected_employees_company_mapping
+   BEFORE UPDATE ON rejected_employee_company_mapping
    for each row EXECUTE procedure updation_timestamp_handler();
