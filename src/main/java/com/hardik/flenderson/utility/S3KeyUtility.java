@@ -13,7 +13,19 @@ public class S3KeyUtility {
 	}
 	
 	public String getProfilePictureKey(Manager manager) {
-		return "EMPLOYEE/"+manager.getEmailId();
+		return "MANAGER/"+manager.getEmailId();
+	}
+	
+	public String getCompanyLogoKey(Manager manager, String companyName) {
+		return "MANAGER/"+manager.getEmailId()+"/"+companyName;
+	}
+	
+	public String getCompanyDocumentKey(Manager manager, String companyName) {
+		return "MANAGER/"+manager.getEmailId()+"/"+companyName+"/docs";
+	}
+	
+	public String getCompanyEventImageKey(Manager manager, String companyName, String eventHeading) {
+		return "MANAGER/"+manager.getEmailId()+"/"+companyName+"/"+eventHeading;
 	}
 
 }

@@ -46,7 +46,7 @@ public class EmployeeIssue implements Serializable {
 	private Employee employee;
 
 	@Column(name = "company_id", nullable = false)
-	private Integer companyId;
+	private UUID companyId;
 
 	@Hidden
 	@Exclude

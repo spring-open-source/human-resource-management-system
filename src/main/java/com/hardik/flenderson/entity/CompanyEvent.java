@@ -32,7 +32,7 @@ public class CompanyEvent implements Serializable{
 	private UUID id;
 	
 	@Column(name = "company_id", nullable = false)
-	private Integer companyId;
+	private UUID companyId;
 	
 	@Hidden
 	@Exclude
