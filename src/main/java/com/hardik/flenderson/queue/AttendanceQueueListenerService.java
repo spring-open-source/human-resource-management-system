@@ -13,7 +13,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.hardik.flenderson.dto.AttendanceWrapperDto;
-import com.hardik.flenderson.queue.configuration.QueueConfiguration;
+import com.hardik.flenderson.queue.configuration.AttendanceQueueConfiguration;
 import com.hardik.flenderson.service.AttendanceRecordService;
 
 import lombok.AllArgsConstructor;
@@ -22,11 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @AllArgsConstructor
-@EnableConfigurationProperties(QueueConfiguration.class)
-public class QueueListenerService {
+@EnableConfigurationProperties(AttendanceQueueConfiguration.class)
+public class AttendanceQueueListenerService {
 	
 	private final AttendanceRecordService attendanceRecordService; 
-
 
 	@SqsListener("flenderson-attendance-listener-queue")
 	public void loadMessageFromSQS(String message) {

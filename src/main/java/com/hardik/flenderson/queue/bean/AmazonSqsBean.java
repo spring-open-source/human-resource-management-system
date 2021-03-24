@@ -10,21 +10,21 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
-import com.hardik.flenderson.queue.configuration.QueueConfiguration;
+import com.hardik.flenderson.queue.configuration.AttendanceQueueConfiguration;
 
 import lombok.AllArgsConstructor;
 
 @Component
-@EnableConfigurationProperties(QueueConfiguration.class)
+@EnableConfigurationProperties(AttendanceQueueConfiguration.class)
 @AllArgsConstructor
 public class AmazonSqsBean {
 
-	private final QueueConfiguration queueConfiguration;
+	private final AttendanceQueueConfiguration attendanceQueueConfiguration;
 
 	@Primary
 	@Bean
 	public AmazonSQSAsync amazonSQSAsync() {
-		final var queueProperties = queueConfiguration.getProperties();
+		final var queueProperties = attendanceQueueConfiguration.getProperties();
 		return AmazonSQSAsyncClientBuilder.standard().withRegion(Regions.US_EAST_2)
 				.withCredentials(new AWSStaticCredentialsProvider(
 						new BasicAWSCredentials(queueProperties.getAccessKey(), queueProperties.getSecretKey())))

@@ -11,22 +11,22 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
-import com.hardik.flenderson.notification.configuration.NotificationConfiguration;
+import com.hardik.flenderson.notification.configuration.AttendanceNotificationConfiguration;
 
 import lombok.AllArgsConstructor;
 
 @Component
 @AllArgsConstructor
-@EnableConfigurationProperties(NotificationConfiguration.class)
+@EnableConfigurationProperties(AttendanceNotificationConfiguration.class)
 public class AmazonSnsBean {
 
-	private final NotificationConfiguration notificationConfiguration;
+	private final AttendanceNotificationConfiguration attendanceNotificationConfiguration;
 
 	@Primary
 	@Bean
 	@Profile("default")
 	public AmazonSNSClient getSnsClient() {
-		var configuration = notificationConfiguration.getNotificationService();
+		var configuration = attendanceNotificationConfiguration.getNotificationService();
 		return (AmazonSNSClient) AmazonSNSClientBuilder.standard().withRegion(Regions.US_EAST_2)
 				.withCredentials(new AWSStaticCredentialsProvider(
 						new BasicAWSCredentials(configuration.getAccessKey(), configuration.getSecretKey())))

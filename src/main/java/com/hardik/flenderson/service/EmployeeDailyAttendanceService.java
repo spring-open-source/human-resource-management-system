@@ -14,6 +14,7 @@ import com.hardik.flenderson.dto.AttendanceWrapperDto;
 import com.hardik.flenderson.dto.DailyAttendanceDto;
 import com.hardik.flenderson.dto.DailyAttendanceStatusDto;
 import com.hardik.flenderson.enums.CompanyStatus;
+import com.hardik.flenderson.enums.SnsTopic;
 import com.hardik.flenderson.notification.NotificationService;
 import com.hardik.flenderson.repository.EmployeeDailyAttendanceRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
@@ -57,8 +58,10 @@ public class EmployeeDailyAttendanceService {
 					.marked(dailyAttendance.getIsMarked()).present(dailyAttendance.getIsPresent()).build());
 		});
 		try {
-			notificationService.publishMessage(new ObjectMapper()
-					.writeValueAsString(AttendanceWrapperDto.builder().data(dailyAttendanceDtos).build()));
+			notificationService.publishMessage(
+					new ObjectMapper()
+							.writeValueAsString(AttendanceWrapperDto.builder().data(dailyAttendanceDtos).build()),
+					SnsTopic.ATTENDANCE_TOPIC.getTopicName());
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}

@@ -1,11 +1,14 @@
 package com.hardik.flenderson.queue.configuration;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import com.hardik.flenderson.queue.configuration.AttendanceQueueConfiguration.Configuration;
 
 import lombok.Data;
 
 @Data
-@ConfigurationProperties(prefix = "com.hardik.flenderson.sqs")
-public class QueueConfiguration {
+@ConfigurationProperties(prefix = "com.hardik.flenderson.sqs.payroll")
+public class PayrollQueueConfiguration {
 	
 	private Configuration properties = new Configuration();
 
@@ -13,7 +16,7 @@ public class QueueConfiguration {
 	public class Configuration {
 		private String accessKey;
 		private String secretKey;
-		private String topicName;
+		private String queueName;
 	}
 
 }
