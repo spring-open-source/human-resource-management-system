@@ -1,7 +1,6 @@
 package com.hardik.flenderson.dto;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;

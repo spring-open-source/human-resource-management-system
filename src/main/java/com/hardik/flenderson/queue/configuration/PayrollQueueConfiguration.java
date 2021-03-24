@@ -2,8 +2,6 @@ package com.hardik.flenderson.queue.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.hardik.flenderson.queue.configuration.AttendanceQueueConfiguration.Configuration;
-
 import lombok.Data;
 
 @Data

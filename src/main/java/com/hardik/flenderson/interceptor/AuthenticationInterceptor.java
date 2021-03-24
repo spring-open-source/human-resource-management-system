@@ -12,11 +12,9 @@ import com.hardik.flenderson.interceptor.dto.UserDetailDto;
 import com.hardik.flenderson.utility.JwtUtility;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
 @Component
-@Slf4j
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
 	private static ThreadLocal<UserDetailDto> threadLocal = new ThreadLocal<UserDetailDto>();

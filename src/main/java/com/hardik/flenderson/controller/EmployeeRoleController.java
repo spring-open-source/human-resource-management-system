@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hardik.flenderson.entity.MasterRole;
 import com.hardik.flenderson.request.EmployeeRoleCreationRequest;
-import com.hardik.flenderson.request.RoleAssociationRequest;
 import com.hardik.flenderson.service.EmployeeRoleService;
 import com.hardik.flenderson.service.MasterRoleService;
 

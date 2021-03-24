@@ -2,8 +2,6 @@ package com.hardik.flenderson.notification.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.hardik.flenderson.notification.configuration.AttendanceNotificationConfiguration.Configuration;
-
 import lombok.Data;
 
 @Data

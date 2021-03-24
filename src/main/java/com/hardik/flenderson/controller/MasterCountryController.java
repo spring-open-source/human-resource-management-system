@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hardik.flenderson.dto.MasterCountryDto;
-import com.hardik.flenderson.entity.MasterCountry;
 import com.hardik.flenderson.service.MasterCountryService;
 
 import lombok.AllArgsConstructor;

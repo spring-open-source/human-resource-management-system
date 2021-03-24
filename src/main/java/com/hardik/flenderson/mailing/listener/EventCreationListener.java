@@ -28,6 +28,7 @@ public class EventCreationListener {
 
 	@EventListener
 	public void listenToEventCreationEvent(EventCreationEvent eventCreationEvent) {
+		@SuppressWarnings("unchecked")
 		List<Employee> employees = (List<Employee>) eventCreationEvent.getSource();
 
 		for (Employee employee : employees) {
