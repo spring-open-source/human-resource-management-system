@@ -163,7 +163,8 @@ CREATE trigger socials_updation_timestamp_trigger
 CREATE TABLE company_events (
   id UUID NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
   company_id UUID NOT NULL,
-  heading CHARACTER VARYING(255) NOT NULL, 
+  is_active BOOLEAN NOT NULL,
+  heading CHARACTER VARYING(255) NOT NULL,
   description CHARACTER VARYING(1000) NOT NULL, 
   image_url CHARACTER VARYING(255),
   due_date DATE NOT NULL,

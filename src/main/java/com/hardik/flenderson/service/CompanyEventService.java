@@ -1,5 +1,6 @@
 package com.hardik.flenderson.service;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class CompanyEventService {
 		final var company = manager.getCompany();
 
 		companyEvent.setCompanyId(company.getId());
+		companyEvent.setIsActive(true);
 		companyEvent.setHeading(companyEventCreationRequest.getHeading());
 		companyEvent.setDescription(companyEventCreationRequest.getDescription());
 		companyEvent.setDueDate(companyEventCreationRequest.getDueDate());
@@ -42,6 +44,15 @@ public class CompanyEventService {
 			companyEvent.setImageUrl(eventImageKey);
 		}
 		final var savedCompanyEvent = companyEventRepository.save(companyEvent);
+	}
+
+	public void inspectForExpiredEvents() {
+		companyEventRepository.findAll().forEach(companyEvent -> {
+			if (LocalDate.now().isAfter(companyEvent.getDueDate())) {
+				companyEvent.setIsActive(false);
+				companyEventRepository.save(companyEvent);
+			}
+		});
 	}
 
 }

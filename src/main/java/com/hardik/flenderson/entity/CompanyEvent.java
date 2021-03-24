@@ -40,6 +40,9 @@ public class CompanyEvent implements Serializable{
 	@JoinColumn(name = "company_id", nullable = false, insertable = false, updatable = false)
 	private Company company;
 	
+	@Column(name = "is_active", nullable = false)
+	private Boolean isActive;
+	
 	@Column(name = "heading", nullable = false)
 	private String heading;
 	

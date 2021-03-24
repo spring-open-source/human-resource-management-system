@@ -1,5 +1,6 @@
 package com.hardik.flenderson.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,5 +15,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID>{
 	Boolean existsByEmailIdIgnoreCase(String email);
 	
 	Optional<Employee> findByEmailIdIgnoreCase(String emailId);
+	
+	List<Employee> findByCompanyStatus(Integer companyStatus);
 
 }
