@@ -8,6 +8,7 @@ import com.hardik.flenderson.entity.EmployeeIssue;
 import com.hardik.flenderson.repository.EmployeeIssueRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
 import com.hardik.flenderson.request.EmployeeIssueCreationRequest;
+import com.hardik.flenderson.request.EmployeeIssueResponseCreationRequest;
 import com.hardik.flenderson.utility.EmployeeIssueUtility;
 
 import lombok.AllArgsConstructor;
@@ -31,8 +32,16 @@ public class EmployeeIssueService {
 		employeeIssue.setEmployeeId(employeeId);
 		employeeIssue.setIsActive(true);
 		employeeIssue.setIssueType(EmployeeIssueUtility.getIssueType(employeeIssueCreationRequest.getIssueType()));
-		
+
 		final var savedEmployeeIssue = employeeIssueRepository.save(employeeIssue);
+	}
+
+	public void respond(EmployeeIssueResponseCreationRequest employeeIssueResponseCreationRequest) {
+		final var employeeIssue = employeeIssueRepository.findById(employeeIssueResponseCreationRequest.getIssueId())
+				.get();
+		employeeIssue.setResponse(employeeIssueResponseCreationRequest.getResponse());
+		employeeIssue.setIsActive(false);
+		employeeIssueRepository.save(employeeIssue);
 	}
 
 }

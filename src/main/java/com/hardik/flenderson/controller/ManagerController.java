@@ -14,9 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hardik.flenderson.dto.ManagerDetailDto;
 import com.hardik.flenderson.interceptor.AuthenticationInterceptor;
 import com.hardik.flenderson.request.AcceptCompanyJoinRequest;
+import com.hardik.flenderson.request.EmployeeIssueResponseCreationRequest;
 import com.hardik.flenderson.request.ManagerDetailUpdationRequest;
 import com.hardik.flenderson.request.RejectCompanyJoinRequest;
 import com.hardik.flenderson.request.RemoveEmployeeFromCompanyRequest;
+import com.hardik.flenderson.service.EmployeeIssueService;
 import com.hardik.flenderson.service.ManagerService;
 
 import lombok.AllArgsConstructor;
@@ -26,6 +28,8 @@ import lombok.AllArgsConstructor;
 public class ManagerController extends AuthenticationInterceptor {
 
 	private final ManagerService managerService;
+	
+	private final EmployeeIssueService employeeIssueService; 
 
 	@GetMapping("v1/manager/{managerId}")
 	public ManagerDetailDto employeeRetreivalHandler(
@@ -63,4 +67,9 @@ public class ManagerController extends AuthenticationInterceptor {
 		managerService.removeEmployeeFromCompany(removeEmployeeFromCompanyRequest);
 	}
 
+	@PostMapping("v1/employee-issue-response")
+	public void respondToEmployeeIssue(
+			@RequestBody(required = true) final EmployeeIssueResponseCreationRequest employeeIssueResponseCreationRequest) {
+		employeeIssueService.respond(employeeIssueResponseCreationRequest);
+	}
 }

@@ -10,14 +10,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.dto.ManagerDetailDto;
 import com.hardik.flenderson.entity.EmployeeDailyAttendance;
+import com.hardik.flenderson.entity.EmployeeRole;
 import com.hardik.flenderson.entity.Manager;
+import com.hardik.flenderson.entity.MasterRole;
 import com.hardik.flenderson.entity.MonthlySalaryDetail;
 import com.hardik.flenderson.entity.RejectedEmployeeCompanyMapping;
 import com.hardik.flenderson.enums.CompanyStatus;
 import com.hardik.flenderson.keycloak.dto.KeycloakUserDto;
 import com.hardik.flenderson.repository.EmployeeDailyAttendanceRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
+import com.hardik.flenderson.repository.EmployeeRoleRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
+import com.hardik.flenderson.repository.MasterRoleRepository;
 import com.hardik.flenderson.repository.MonthlySalaryDetailRepository;
 import com.hardik.flenderson.repository.RejectedEmployeeCompanyMappingRepository;
 import com.hardik.flenderson.request.AcceptCompanyJoinRequest;
@@ -46,6 +50,10 @@ public class ManagerService {
 	private final EmployeeDailyAttendanceRepository employeeDailyAttendanceRepository;
 
 	private final MonthlySalaryDetailRepository monthlySalaryDetailRepository;
+
+	private final EmployeeRoleRepository employeeRoleRepository;
+
+	private final MasterRoleRepository masterRoleRepository;
 
 	public Manager getManager(KeycloakUserDto keyCloakUser) {
 		if (managerRepository.existsByEmailIdIgnoreCase(keyCloakUser.getEmail()))
@@ -114,6 +122,22 @@ public class ManagerService {
 		monthlySalaryDetail.setPenalty(0.0);
 		monthlySalaryDetail.setSalary(acceptCompanyJoinRequest.getMonthlySalary());
 		monthlySalaryDetailRepository.save(monthlySalaryDetail);
+
+		if (acceptCompanyJoinRequest.getRoles() != null) {
+			acceptCompanyJoinRequest.getRoles().forEach(role -> {
+				MasterRole masterRole = null;
+				if (role.getRoleId() != null)
+					masterRole = masterRoleRepository.findById(role.getRoleId()).get();
+				else
+					masterRole = masterRoleRepository.findByNameIgnoreCase(role.getName()).orElse(new MasterRole());
+				masterRole.setName(role.getName());
+				final var savedMasterRole = masterRoleRepository.save(masterRole);
+				final var employeeRole = new EmployeeRole();
+				employeeRole.setEmployeeId(employee.getId());
+				employeeRole.setRoleId(savedMasterRole.getId());
+				employeeRoleRepository.save(employeeRole);
+			});
+		}
 	}
 
 	public void rejectCompanyJoinRequest(RejectCompanyJoinRequest rejectCompanyJoinRequest) {
@@ -154,6 +178,8 @@ public class ManagerService {
 		rejectedEmployeeMapping.setIsActive(true);
 
 		rejectedEmployeeCompanyMappingRepository.save(rejectedEmployeeMapping);
+
+		employeeRoleRepository.deleteAll(employeeRoleRepository.findByEmployeeId(employee.getId()));
 	}
 
 }

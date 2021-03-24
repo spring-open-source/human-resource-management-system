@@ -1,5 +1,6 @@
 package com.hardik.flenderson.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,5 +10,7 @@ import com.hardik.flenderson.entity.MasterRole;
 
 @Repository
 public interface MasterRoleRepository extends JpaRepository<MasterRole, UUID>{
+	
+	Optional<MasterRole> findByNameIgnoreCase(String name);
 
 }
