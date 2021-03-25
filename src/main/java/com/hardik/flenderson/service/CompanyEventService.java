@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.entity.CompanyEvent;
+import com.hardik.flenderson.enums.ExceptionMessage;
+import com.hardik.flenderson.exception.InvalidManagerIdException;
 import com.hardik.flenderson.repository.CompanyEventRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
 import com.hardik.flenderson.request.CompanyEventCreationRequest;
@@ -28,7 +30,8 @@ public class CompanyEventService {
 	public void create(CompanyEventCreationRequest companyEventCreationRequest, UUID managerId,
 			MultipartFile eventImage) {
 		final var companyEvent = new CompanyEvent();
-		final var manager = managerRepository.findById(managerId).get();
+		final var manager = managerRepository.findById(managerId)
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()));
 		final var company = manager.getCompany();
 
 		companyEvent.setCompanyId(company.getId());

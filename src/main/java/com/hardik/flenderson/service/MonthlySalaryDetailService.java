@@ -8,7 +8,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hardik.flenderson.dto.MonthlySalaryRecordDto;
 import com.hardik.flenderson.dto.MonthlySalaryWrapperDto;
+import com.hardik.flenderson.enums.ExceptionMessage;
 import com.hardik.flenderson.enums.SnsTopic;
+import com.hardik.flenderson.exception.InvalidEmployeeIdException;
 import com.hardik.flenderson.notification.NotificationService;
 import com.hardik.flenderson.repository.EmployeeRepository;
 import com.hardik.flenderson.repository.MonthlySalaryDetailRepository;
@@ -53,7 +55,8 @@ public class MonthlySalaryDetailService {
 		final ArrayList<MonthlySalaryRecordDto> monthlySalaryRecords = new ArrayList<MonthlySalaryRecordDto>();
 		final var monthlySalaryDetails = monthlySalaryDetailRepository.findAll();
 		monthlySalaryDetails.forEach(monthlySalaryDetail -> {
-			final var employee = employeeRepository.findById(monthlySalaryDetail.getEmployeeId()).get();
+			final var employee = employeeRepository.findById(monthlySalaryDetail.getEmployeeId()).orElseThrow(
+					() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 			monthlySalaryRecords.add(MonthlySalaryRecordDto.builder().bonusForMonth(monthlySalaryDetail.getBonus())
 					.companyId(employee.getCompanyId()).employeeId(employee.getId())
 					.monthlySalary(monthlySalaryDetail.getSalary()).penaltyForMonth(monthlySalaryDetail.getPenalty())

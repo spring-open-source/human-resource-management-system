@@ -1,5 +1,6 @@
 package com.hardik.flenderson.interceptor;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import com.hardik.flenderson.enums.ExceptionMessage;
+import com.hardik.flenderson.exception.AccessTokenExpiredException;
+import com.hardik.flenderson.exception.AuthenticationBearerStrategyNotUsedException;
+import com.hardik.flenderson.exception.MissingAccessTokenAndUserIdException;
 import com.hardik.flenderson.interceptor.dto.UserDetailDto;
 import com.hardik.flenderson.utility.JwtUtility;
 
@@ -29,13 +34,15 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 		final var authentication = (String) request.getHeader("Authentication");
 		final var userId = (String) request.getHeader("User-Id");
 		if (authentication == null || userId == null)
-			throw new RuntimeException("ID TOKEN AND USER ID NOT PRESENT");
+			throw new MissingAccessTokenAndUserIdException(
+					ExceptionMessage.MISSING_ACCESS_TOKEN_AND_USER_ID.getMessage());
 		final var idTokenArray = authentication.split(" ");
-		if (idTokenArray[0].toUpperCase() != "BEARER")
-			throw new RuntimeException("USE BEARER STRATEGY");
+		if (idTokenArray[0].toUpperCase() != "BEARER" || List.of(idTokenArray).size() == 2)
+			throw new AuthenticationBearerStrategyNotUsedException(
+					ExceptionMessage.AUTHENTICATION_BEARER_STRATEGY_NOT_USED.getMessage());
 		final var idToken = idTokenArray[1];
 		if (JwtUtility.isExpired(idToken))
-			throw new RuntimeException("TOKEN EXPIRED");
+			throw new AccessTokenExpiredException(ExceptionMessage.ACCESS_TOKEN_EXPIRED.getMessage());
 		threadLocal.set(UserDetailDto.builder().userId(UUID.fromString(userId))
 				.accountType(JwtUtility.getAccountType(idToken)).build());
 		return true;

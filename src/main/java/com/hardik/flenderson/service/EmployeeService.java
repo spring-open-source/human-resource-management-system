@@ -10,6 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hardik.flenderson.dto.EmployeeDetailDto;
 import com.hardik.flenderson.entity.Employee;
 import com.hardik.flenderson.enums.CompanyStatus;
+import com.hardik.flenderson.enums.ExceptionMessage;
+import com.hardik.flenderson.exception.EmptyEmployeeProfilePictureException;
+import com.hardik.flenderson.exception.InvalidCompanyCodeAndNameException;
+import com.hardik.flenderson.exception.InvalidEmployeeEmailIdException;
+import com.hardik.flenderson.exception.InvalidEmployeeIdException;
+import com.hardik.flenderson.exception.RejectedEmployeeBeingDesperateException;
 import com.hardik.flenderson.keycloak.dto.KeycloakUserDto;
 import com.hardik.flenderson.repository.CompanyRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
@@ -37,7 +43,8 @@ public class EmployeeService {
 
 	public Employee getEmployee(KeycloakUserDto keyCloakUser) {
 		if (employeeRepository.existsByEmailIdIgnoreCase(keyCloakUser.getEmail()))
-			return employeeRepository.findByEmailIdIgnoreCase(keyCloakUser.getEmail()).get();
+			return employeeRepository.findByEmailIdIgnoreCase(keyCloakUser.getEmail()).orElseThrow(
+					() -> new InvalidEmployeeEmailIdException(ExceptionMessage.INVALID_EMPLOYEE_EMAIL.getMessage()));
 		else {
 			final var employee = new Employee();
 			employee.setFirstName(keyCloakUser.getFirstName());
@@ -49,7 +56,8 @@ public class EmployeeService {
 	}
 
 	public void updateDetails(EmployeeDetailUpdationRequest employeeDetailUpdationRequest) {
-		final var employee = employeeRepository.findById(employeeDetailUpdationRequest.getEmployeeId()).get();
+		final var employee = employeeRepository.findById(employeeDetailUpdationRequest.getEmployeeId())
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		employee.setFirstName(employeeDetailUpdationRequest.getFirstName());
 		employee.setMiddleName(employeeDetailUpdationRequest.getMiddleName());
 		employee.setLastName(employeeDetailUpdationRequest.getLastName());
@@ -63,8 +71,10 @@ public class EmployeeService {
 
 	public void updateProfilePicture(UUID userId, MultipartFile multipartFile) {
 		if (multipartFile.isEmpty() || multipartFile == null)
-			throw new RuntimeException();
-		final var employee = employeeRepository.findById(userId).get();
+			throw new EmptyEmployeeProfilePictureException(
+					ExceptionMessage.EMPTY_EMPLOYEE_PROFILE_PICTURE.getMessage());
+		final var employee = employeeRepository.findById(userId)
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		String keyForEmployeeProfilePicture = S3KeyUtility.getProfilePictureKey(employee);
 		storageService.save(keyForEmployeeProfilePicture, multipartFile);
 		employee.setImageUrl(keyForEmployeeProfilePicture);
@@ -72,7 +82,8 @@ public class EmployeeService {
 	}
 
 	public EmployeeDetailDto retreive(UUID employeeId) {
-		final var employee = employeeRepository.findById(employeeId).get();
+		final var employee = employeeRepository.findById(employeeId)
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		String profilePicture = null;
 		if (employee.getImageUrl() != null)
 			try {
@@ -89,20 +100,24 @@ public class EmployeeService {
 	}
 
 	public void joinCompanyRequest(CompanyJoinRequest companyJoinRequest, UUID employeeId) {
-		final var employee = employeeRepository.findById(employeeId).get();
+		final var employee = employeeRepository.findById(employeeId)
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		final var company = companyRepository
 				.findByNameAndCompanyCode(companyJoinRequest.getCompanyName(), companyJoinRequest.getCompanyCode())
-				.get();
+				.orElseThrow(() -> new InvalidCompanyCodeAndNameException(
+						ExceptionMessage.INVALID_COMPANY_CODE_AND_NAME.getMessage()));
 		if (rejectedEmployeeCompanyMappingRepository.findByEmployeeIdAndCompanyId(employee.getId(), company.getId())
 				.isPresent())
-			throw new RuntimeException("");
+			throw new RejectedEmployeeBeingDesperateException(
+					ExceptionMessage.REJECTED_EMPLOYEE_BEING_DESPERATE.getMessage());
 		employee.setCompanyStatus(CompanyStatus.REQUEST_SENT.getStatusId());
 		employee.setCompanyId(company.getId());
 		employeeRepository.save(employee);
 	}
 
 	public void retractCompanyJoinRequest(UUID employeeId) {
-		final var employee = employeeRepository.findById(employeeId).get();
+		final var employee = employeeRepository.findById(employeeId)
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
 		employee.setCompany(null);
 		employee.setCompanyId(null);

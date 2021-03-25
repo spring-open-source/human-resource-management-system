@@ -5,6 +5,9 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.hardik.flenderson.entity.EmployeeIssue;
+import com.hardik.flenderson.enums.ExceptionMessage;
+import com.hardik.flenderson.exception.InvalidEmployeeIdException;
+import com.hardik.flenderson.exception.InvalidEmployeeIssueIdException;
 import com.hardik.flenderson.repository.EmployeeIssueRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
 import com.hardik.flenderson.request.EmployeeIssueCreationRequest;
@@ -23,7 +26,8 @@ public class EmployeeIssueService {
 
 	public void create(EmployeeIssueCreationRequest employeeIssueCreationRequest, UUID employeeId) {
 		final var employeeIssue = new EmployeeIssue();
-		final var employee = employeeRepository.findById(employeeId).get();
+		final var employee = employeeRepository.findById(employeeId)
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		final var company = employee.getCompany();
 
 		employeeIssue.setCompanyId(company.getId());
@@ -38,7 +42,8 @@ public class EmployeeIssueService {
 
 	public void respond(EmployeeIssueResponseCreationRequest employeeIssueResponseCreationRequest) {
 		final var employeeIssue = employeeIssueRepository.findById(employeeIssueResponseCreationRequest.getIssueId())
-				.get();
+				.orElseThrow(() -> new InvalidEmployeeIssueIdException(
+						ExceptionMessage.INVALID_EMPLOYEE_ISSUE_ID.getMessage()));
 		employeeIssue.setResponse(employeeIssueResponseCreationRequest.getResponse());
 		employeeIssue.setIsActive(false);
 		employeeIssueRepository.save(employeeIssue);

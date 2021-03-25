@@ -16,6 +16,12 @@ import com.hardik.flenderson.entity.MasterRole;
 import com.hardik.flenderson.entity.MonthlySalaryDetail;
 import com.hardik.flenderson.entity.RejectedEmployeeCompanyMapping;
 import com.hardik.flenderson.enums.CompanyStatus;
+import com.hardik.flenderson.enums.ExceptionMessage;
+import com.hardik.flenderson.exception.EmptyManagerProfilePictureException;
+import com.hardik.flenderson.exception.InvalidEmployeeIdException;
+import com.hardik.flenderson.exception.InvalidManagerEmailException;
+import com.hardik.flenderson.exception.InvalidManagerIdException;
+import com.hardik.flenderson.exception.InvalidMonthlySalaryDetailIdException;
 import com.hardik.flenderson.keycloak.dto.KeycloakUserDto;
 import com.hardik.flenderson.repository.EmployeeDailyAttendanceRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
@@ -57,7 +63,8 @@ public class ManagerService {
 
 	public Manager getManager(KeycloakUserDto keyCloakUser) {
 		if (managerRepository.existsByEmailIdIgnoreCase(keyCloakUser.getEmail()))
-			return managerRepository.findByEmailIdIgnoreCase(keyCloakUser.getEmail()).get();
+			return managerRepository.findByEmailIdIgnoreCase(keyCloakUser.getEmail()).orElseThrow(
+					() -> new InvalidManagerEmailException(ExceptionMessage.INVALID_MANAGER_EMAIL.getMessage()));
 		else {
 			final var manager = new Manager();
 			manager.setFirstName(keyCloakUser.getFirstName());
@@ -68,7 +75,8 @@ public class ManagerService {
 	}
 
 	public void updateDetails(ManagerDetailUpdationRequest managerDetailUpdationRequest) {
-		final var manager = managerRepository.findById(managerDetailUpdationRequest.getManagerId()).get();
+		final var manager = managerRepository.findById(managerDetailUpdationRequest.getManagerId())
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()));
 		manager.setFirstName(managerDetailUpdationRequest.getFirstName());
 		manager.setMiddleName(managerDetailUpdationRequest.getMiddleName());
 		manager.setLastName(managerDetailUpdationRequest.getLastName());
@@ -83,7 +91,7 @@ public class ManagerService {
 
 	public void updateProfilePicture(UUID userId, MultipartFile multipartFile) {
 		if (multipartFile.isEmpty() || multipartFile == null)
-			throw new RuntimeException();
+			throw new EmptyManagerProfilePictureException(ExceptionMessage.EMPTY_MANAGER_PROFILE_PICTURE.getMessage());
 		final var manager = managerRepository.findById(userId).get();
 		String keyForEmployeeProfilePicture = S3KeyUtility.getProfilePictureKey(manager);
 		storageService.save(keyForEmployeeProfilePicture, multipartFile);
@@ -92,7 +100,8 @@ public class ManagerService {
 	}
 
 	public ManagerDetailDto retreiveManager(UUID managerId) {
-		final var manager = managerRepository.findById(managerId).get();
+		final var manager = managerRepository.findById(managerId)
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()));
 		String profilePicture = null;
 		if (manager.getImageUrl() != null)
 			try {
@@ -109,7 +118,8 @@ public class ManagerService {
 	}
 
 	public void acceptCompanyJoinRequest(AcceptCompanyJoinRequest acceptCompanyJoinRequest) {
-		final var employee = employeeRepository.findById(acceptCompanyJoinRequest.getEmployeeId()).get();
+		final var employee = employeeRepository.findById(acceptCompanyJoinRequest.getEmployeeId())
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		employee.setCompanyStatus(CompanyStatus.IN_COMPANY.getStatusId());
 		final var employeeDailyAttendance = new EmployeeDailyAttendance();
 		employeeDailyAttendance.setDate(LocalDate.now());
@@ -141,7 +151,8 @@ public class ManagerService {
 	}
 
 	public void rejectCompanyJoinRequest(RejectCompanyJoinRequest rejectCompanyJoinRequest) {
-		final var employee = employeeRepository.findById(rejectCompanyJoinRequest.getEmployeeId()).get();
+		final var employee = employeeRepository.findById(rejectCompanyJoinRequest.getEmployeeId())
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		final var company = employee.getCompany();
 		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
 		employee.setCompany(null);
@@ -159,13 +170,16 @@ public class ManagerService {
 	}
 
 	public void removeEmployeeFromCompany(RemoveEmployeeFromCompanyRequest removeEmployeeFromCompanyRequest) {
-		final var employee = employeeRepository.findById(removeEmployeeFromCompanyRequest.getEmployeeId()).get();
+		final var employee = employeeRepository.findById(removeEmployeeFromCompanyRequest.getEmployeeId())
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		final var company = employee.getCompany();
 		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
 		employee.setCompany(null);
 		employee.setCompanyId(null);
 		employeeDailyAttendanceRepository.deleteById(employee.getEmployeeDailyAttendanceId());
-		monthlySalaryDetailRepository.delete(monthlySalaryDetailRepository.findByEmployeeId(employee.getId()).get());
+		monthlySalaryDetailRepository.delete(monthlySalaryDetailRepository.findByEmployeeId(employee.getId())
+				.orElseThrow(() -> new InvalidMonthlySalaryDetailIdException(
+						ExceptionMessage.INVALID_MONTHLY_SALARY_DETAIL_ID.getMessage())));
 		employee.setEmployeeDailyAttendanceId(null);
 		employee.setEmployeeDailyAttendance(null);
 		employeeRepository.save(employee);

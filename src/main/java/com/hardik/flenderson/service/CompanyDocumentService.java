@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.entity.CompanyDocument;
+import com.hardik.flenderson.enums.ExceptionMessage;
+import com.hardik.flenderson.exception.InvalidManagerIdException;
 import com.hardik.flenderson.repository.CompanyDocumentRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
 import com.hardik.flenderson.request.CompanyDocumentCreationRequest;
@@ -27,7 +29,8 @@ public class CompanyDocumentService {
 	public void create(CompanyDocumentCreationRequest companyDocumentCreationRequest, UUID managerId,
 			MultipartFile document) {
 		final var companyDocument = new CompanyDocument();
-		final var manager = managerRepository.findById(managerId).get();
+		final var manager = managerRepository.findById(managerId)
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()));
 		final var company = manager.getCompany();
 
 		companyDocument.setCompanyId(company.getId());

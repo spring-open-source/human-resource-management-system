@@ -12,7 +12,9 @@ import com.hardik.flenderson.dto.AttendanceWrapperDto;
 import com.hardik.flenderson.dto.DailyAttendanceDto;
 import com.hardik.flenderson.dto.DailyAttendanceStatusDto;
 import com.hardik.flenderson.enums.CompanyStatus;
+import com.hardik.flenderson.enums.ExceptionMessage;
 import com.hardik.flenderson.enums.SnsTopic;
+import com.hardik.flenderson.exception.InvalidEmployeeIdException;
 import com.hardik.flenderson.notification.NotificationService;
 import com.hardik.flenderson.repository.EmployeeDailyAttendanceRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
@@ -31,7 +33,8 @@ public class EmployeeDailyAttendanceService {
 	private final NotificationService notificationService;
 
 	public void markAttendance(AttendanceMarkRequest attendanceMarkRequest, UUID employeeId) {
-		final var employee = employeeRepository.findById(employeeId).get();
+		final var employee = employeeRepository.findById(employeeId)
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		final var employeeDailyAttendance = employee.getEmployeeDailyAttendance();
 		employeeDailyAttendance.setIsMarked(true);
 		employeeDailyAttendance.setIsPresent(attendanceMarkRequest.getPresent());
@@ -40,7 +43,8 @@ public class EmployeeDailyAttendanceService {
 	}
 
 	public DailyAttendanceStatusDto getDailyAttendanceStatus(UUID employeeId) {
-		final var employee = employeeRepository.findById(employeeId).get();
+		final var employee = employeeRepository.findById(employeeId)
+				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		final var employeeDailyAttendance = employee.getEmployeeDailyAttendance();
 		return DailyAttendanceStatusDto.builder().date(employeeDailyAttendance.getDate())
 				.isMarked(employeeDailyAttendance.getIsMarked()).build();

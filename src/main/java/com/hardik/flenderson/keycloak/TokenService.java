@@ -13,6 +13,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.hardik.flenderson.dto.UserLoginSuccessDto;
 import com.hardik.flenderson.enums.AccountType;
+import com.hardik.flenderson.enums.ExceptionMessage;
+import com.hardik.flenderson.exception.CorrectScopeNotSpecifiedException;
+import com.hardik.flenderson.exception.KeycloakCodeExchangeFailureException;
+import com.hardik.flenderson.exception.RefreshAccessTokenFailureException;
+import com.hardik.flenderson.exception.UserLogoutFailureException;
 import com.hardik.flenderson.keycloak.configuration.KeycloakConfiguration;
 import com.hardik.flenderson.keycloak.dto.KeycloakTokenDto;
 import com.hardik.flenderson.keycloak.request.LogoutUserRequest;
@@ -54,7 +59,8 @@ public class TokenService {
 			keycloakTokenDto = restTemplate.postForObject(configuration.getDomain() + "/auth/realms/"
 					+ configuration.getRealmName() + "/protocol/openid-connect/token", request, KeycloakTokenDto.class);
 		} catch (Exception exception) {
-			throw new RuntimeException();
+			throw new KeycloakCodeExchangeFailureException(
+					ExceptionMessage.KEYCLOAK_CODE_EXCHANGE_FAILURE.getMessage());
 		}
 		final var accountType = keycloakTokenDto.getScope().contains("manager") ? AccountType.MANAGER.getAccountType()
 				: AccountType.EMPLOYEE.getAccountType();
@@ -65,11 +71,10 @@ public class TokenService {
 		} else if (accountType.equals(AccountType.EMPLOYEE.getAccountType())) {
 			userId = employeeService.getEmployee(keyCloakUser).getId();
 		} else {
-			throw new RuntimeException("NO ACC TYPE");
+			throw new CorrectScopeNotSpecifiedException(ExceptionMessage.CORRECT_SCOPE_NOT_SPECIFIED.getMessage());
 		}
 		return UserLoginSuccessDto.builder().idToken(keycloakTokenDto.getAccess_token())
-				.refreshToken(keycloakTokenDto.getRefresh_token()).userId(userId)
-				.accountType(accountType).build();
+				.refreshToken(keycloakTokenDto.getRefresh_token()).userId(userId).accountType(accountType).build();
 	}
 
 	public KeycloakTokenDto refreshToken(String refreshToken) {
@@ -90,7 +95,7 @@ public class TokenService {
 			keycloakTokenDto = restTemplate.postForObject(configuration.getDomain() + "/auth/realms/"
 					+ configuration.getRealmName() + "/protocol/openid-connect/token", request, KeycloakTokenDto.class);
 		} catch (Exception exception) {
-			throw new RuntimeException();
+			throw new RefreshAccessTokenFailureException(ExceptionMessage.REFRESH_ACCESS_TOKEN_FAILURE.getMessage());
 		}
 		return keycloakTokenDto;
 	}
@@ -108,16 +113,20 @@ public class TokenService {
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-		map.add("Authorization", "Bearer "+logoutUserRequest.getAccessToken());
+		map.add("Authorization", "Bearer " + logoutUserRequest.getAccessToken());
 		map.add("refresh_token", logoutUserRequest.getRefreshToken());
 		map.add("client_id", configuration.getClientId());
 		map.add("client_secret", configuration.getClientSecret());
-		
+
 		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-		
-		restTemplate.postForLocation(configuration.getDomain() + "/auth/realms/"
-				+ configuration.getRealmName() + "/protocol/openid-connect/logout", request);
-		
+
+		try {
+			restTemplate.postForLocation(configuration.getDomain() + "/auth/realms/" + configuration.getRealmName()
+					+ "/protocol/openid-connect/logout", request);
+		} catch (Exception exception) {
+			throw new UserLogoutFailureException(ExceptionMessage.USER_LOGOUT_FAILURE.getMessage());
+		}
+
 	}
 
 }

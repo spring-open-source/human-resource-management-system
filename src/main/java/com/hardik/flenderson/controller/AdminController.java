@@ -1,6 +1,10 @@
 package com.hardik.flenderson.controller;
 
+import java.util.UUID;
+
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +23,11 @@ public class AdminController {
 	public void supportTicketCreationHandler(
 			@RequestBody(required = true) final AdminSupportTicketCreationRequest adminSupportTicketCreationRequest) {
 		adminSupportTicketService.create(adminSupportTicketCreationRequest);
+	}
+	
+	@PutMapping("v1/support-ticket/{ticketId}")
+	public void closeSupportTicketHandler(@PathVariable(name = "ticketId", required = true)final UUID ticketId) {
+		adminSupportTicketService.close(ticketId);
 	}
 
 }
