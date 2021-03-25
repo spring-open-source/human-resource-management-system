@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import com.hardik.flenderson.entity.EmployeeSocial;
 
 @Repository
-public interface EmployeeSocialRepository extends JpaRepository<EmployeeSocial, UUID>{
+public interface EmployeeSocialRepository extends JpaRepository<EmployeeSocial, UUID> {
+
+	Boolean existsByEmployeeIdAndName(UUID employeeId, String name);
 
 }

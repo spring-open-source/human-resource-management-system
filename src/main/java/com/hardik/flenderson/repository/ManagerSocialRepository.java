@@ -9,5 +9,7 @@ import com.hardik.flenderson.entity.ManagerSocial;
 
 @Repository
 public interface ManagerSocialRepository extends JpaRepository<ManagerSocial, UUID>{
+	
+	Boolean existsByManagerIdAndName(UUID managerId, String name);
 
 }

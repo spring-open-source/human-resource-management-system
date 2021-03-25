@@ -2,6 +2,7 @@ package com.hardik.flenderson.controller;
 
 import java.util.UUID;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +17,11 @@ import com.hardik.flenderson.interceptor.AuthenticationInterceptor;
 import com.hardik.flenderson.request.CompanyJoinRequest;
 import com.hardik.flenderson.request.EmployeeDetailUpdationRequest;
 import com.hardik.flenderson.request.EmployeeIssueCreationRequest;
+import com.hardik.flenderson.request.EmployeeSocialCreationRequest;
+import com.hardik.flenderson.request.EmployeeSocialUpdationRequest;
 import com.hardik.flenderson.service.EmployeeIssueService;
 import com.hardik.flenderson.service.EmployeeService;
+import com.hardik.flenderson.service.EmployeeSocialService;
 
 import lombok.AllArgsConstructor;
 
@@ -28,6 +32,8 @@ public class EmployeeController extends AuthenticationInterceptor {
 	private final EmployeeService employeeService;
 
 	private final EmployeeIssueService employeeIssueService;
+
+	private final EmployeeSocialService employeeSocialService;
 
 	@GetMapping("v1/employee/{employeeId}")
 	public EmployeeDetailDto employeeRetreivalHandler(
@@ -57,9 +63,28 @@ public class EmployeeController extends AuthenticationInterceptor {
 	public void companyJoinRequestHandler(@RequestBody(required = true) final CompanyJoinRequest companyJoinRequest) {
 		employeeService.joinCompanyRequest(companyJoinRequest, getUserDetails().getUserId());
 	}
-	
+
 	@PostMapping("v1/retract-join-company-request")
 	public void retractCompanyJoinRequestHandler() {
 		employeeService.retractCompanyJoinRequest(getUserDetails().getUserId());
 	}
+
+	@PostMapping("v1/employee-social")
+	public void employeeSocialCreationHandler(
+			@RequestBody(required = true) final EmployeeSocialCreationRequest employeeSocialCreationRequest) {
+		employeeSocialService.create(employeeSocialCreationRequest, getUserDetails().getUserId());
+	}
+
+	@PutMapping("v1/employee-social")
+	public void employeeSocialUpdationHandler(
+			@RequestBody(required = true) final EmployeeSocialUpdationRequest employeeSocialUpdationRequest) {
+		employeeSocialService.update(employeeSocialUpdationRequest);
+	}
+
+	@DeleteMapping("v1/employee-social/{employeeSocialId}")
+	public void employeeSocialDeletionRequest(
+			@PathVariable(name = "employeeSocialId", required = true) final UUID employeeSocialId) {
+		employeeSocialService.delete(employeeSocialId);
+	}
+
 }

@@ -2,6 +2,7 @@ package com.hardik.flenderson.controller;
 
 import java.util.UUID;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,10 +17,13 @@ import com.hardik.flenderson.interceptor.AuthenticationInterceptor;
 import com.hardik.flenderson.request.AcceptCompanyJoinRequest;
 import com.hardik.flenderson.request.EmployeeIssueResponseCreationRequest;
 import com.hardik.flenderson.request.ManagerDetailUpdationRequest;
+import com.hardik.flenderson.request.ManagerSocialCreationRequest;
+import com.hardik.flenderson.request.ManagerSocialUpdationRequest;
 import com.hardik.flenderson.request.RejectCompanyJoinRequest;
 import com.hardik.flenderson.request.RemoveEmployeeFromCompanyRequest;
 import com.hardik.flenderson.service.EmployeeIssueService;
 import com.hardik.flenderson.service.ManagerService;
+import com.hardik.flenderson.service.ManagerSocialService;
 
 import lombok.AllArgsConstructor;
 
@@ -30,6 +34,8 @@ public class ManagerController extends AuthenticationInterceptor {
 	private final ManagerService managerService;
 	
 	private final EmployeeIssueService employeeIssueService; 
+	
+	private final ManagerSocialService managerSocialService; 
 
 	@GetMapping("v1/manager/{managerId}")
 	public ManagerDetailDto employeeRetreivalHandler(
@@ -71,5 +77,23 @@ public class ManagerController extends AuthenticationInterceptor {
 	public void respondToEmployeeIssue(
 			@RequestBody(required = true) final EmployeeIssueResponseCreationRequest employeeIssueResponseCreationRequest) {
 		employeeIssueService.respond(employeeIssueResponseCreationRequest);
+	}
+	
+	@PostMapping("v1/manager-social")
+	public void managerSocialCreationHandler(
+			@RequestBody(required = true) final ManagerSocialCreationRequest managerSocialCreationRequest) {
+		managerSocialService.create(managerSocialCreationRequest, getUserDetails().getUserId());
+	}
+
+	@PutMapping("v1/manager-social")
+	public void managerSocialUpdationHandler(
+			@RequestBody(required = true) final ManagerSocialUpdationRequest managerSocialUpdationRequest) {
+		managerSocialService.update(managerSocialUpdationRequest);
+	}
+
+	@DeleteMapping("v1/manager-social/{managerSocialId}")
+	public void managerSocialDeletionRequest(
+			@PathVariable(name = "managerSocialId", required = true) final UUID managerSocialId) {
+		managerSocialService.delete(managerSocialId);
 	}
 }
