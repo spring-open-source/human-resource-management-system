@@ -1,17 +1,21 @@
 package com.hardik.flenderson.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.entity.Company;
+import com.hardik.flenderson.entity.Employee;
 import com.hardik.flenderson.enums.ExceptionMessage;
 import com.hardik.flenderson.exception.InvalidManagerIdException;
 import com.hardik.flenderson.mailing.dto.CompanyCreationDto;
 import com.hardik.flenderson.mailing.event.CompanyCreationEvent;
 import com.hardik.flenderson.repository.CompanyRepository;
+import com.hardik.flenderson.repository.EmployeeRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
 import com.hardik.flenderson.request.CompanyCreationRequest;
 import com.hardik.flenderson.storage.StorageService;
@@ -27,6 +31,8 @@ public class CompanyService {
 	private final CompanyRepository companyRepository;
 
 	private final ManagerRepository managerRepository;
+
+	private final EmployeeRepository employeeRepository;
 
 	private final StorageService storageService;
 
@@ -51,6 +57,20 @@ public class CompanyService {
 		applicationEventPublisher.publishEvent(new CompanyCreationEvent(CompanyCreationDto.builder()
 				.companyCode(savedCompany.getCompanyCode()).companyName(savedCompany.getName())
 				.email(manager.getEmailId()).firstName(manager.getFirstName()).build()));
+	}
+
+	public Company retreive(UUID userId) {
+		if (employeeRepository.existsById(userId)) {
+			return employeeRepository.findById(userId).get().getCompany();
+		} else {
+			return managerRepository.findById(userId).get().getCompany();
+		}
+	}
+
+	public List<Employee> retreiveEmployees(UUID managerId) {
+		return managerRepository.findById(managerId)
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()))
+				.getCompany().getEmployees().parallelStream().collect(Collectors.toList());
 	}
 
 }

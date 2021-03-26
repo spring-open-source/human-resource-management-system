@@ -1,5 +1,6 @@
 package com.hardik.flenderson.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.dto.EmployeeDetailDto;
+import com.hardik.flenderson.entity.EmployeeSocial;
 import com.hardik.flenderson.interceptor.AuthenticationInterceptor;
 import com.hardik.flenderson.request.CompanyJoinRequest;
 import com.hardik.flenderson.request.EmployeeDetailUpdationRequest;
@@ -67,6 +69,12 @@ public class EmployeeController extends AuthenticationInterceptor {
 	@PostMapping("v1/retract-join-company-request")
 	public void retractCompanyJoinRequestHandler() {
 		employeeService.retractCompanyJoinRequest(getUserDetails().getUserId());
+	}
+
+	@GetMapping("v1/employee-social/employeeId")
+	public List<EmployeeSocial> retreiveEmployeeSocials(
+			@PathVariable(name = "employeeId", required = true) final UUID employeeId) {
+		return employeeSocialService.retreive(employeeId);
 	}
 
 	@PostMapping("v1/employee-social")

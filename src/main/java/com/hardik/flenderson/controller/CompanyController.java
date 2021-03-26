@@ -1,5 +1,10 @@
 package com.hardik.flenderson.controller;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -13,6 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.hardik.flenderson.entity.Company;
+import com.hardik.flenderson.entity.CompanyDocument;
+import com.hardik.flenderson.entity.CompanyEvent;
+import com.hardik.flenderson.entity.CompanyJoinInvitation;
+import com.hardik.flenderson.entity.Employee;
+import com.hardik.flenderson.entity.EmployeeIssue;
 import com.hardik.flenderson.interceptor.AuthenticationInterceptor;
 import com.hardik.flenderson.request.CompanyCreationRequest;
 import com.hardik.flenderson.request.CompanyDocumentCreationRequest;
@@ -22,6 +33,7 @@ import com.hardik.flenderson.service.CompanyDocumentService;
 import com.hardik.flenderson.service.CompanyEventService;
 import com.hardik.flenderson.service.CompanyJoinInvitationService;
 import com.hardik.flenderson.service.CompanyService;
+import com.hardik.flenderson.service.EmployeeIssueService;
 
 import lombok.AllArgsConstructor;
 
@@ -37,6 +49,13 @@ public class CompanyController extends AuthenticationInterceptor {
 
 	private final CompanyJoinInvitationService companyJoinInvitationService;
 
+	private final EmployeeIssueService employeeIssueService;
+
+	@GetMapping("v1/company")
+	public Company retreiveCompanyHandler() {
+		return companyService.retreive(getUserDetails().getUserId());
+	}
+
 	@PostMapping("v1/company")
 	public void companyCreationHandler(@RequestPart(name = "file", required = false) MultipartFile multipartFile,
 			@RequestPart(name = "data", required = true) final String companyCreationRequest)
@@ -46,6 +65,12 @@ public class CompanyController extends AuthenticationInterceptor {
 				.registerModule(new ParameterNamesModule()).registerModule(new Jdk8Module())
 				.registerModule(new JavaTimeModule()).readValue(companyCreationRequest, CompanyCreationRequest.class);
 		companyService.create(parsedCompanyCreationRequest, getUserDetails().getUserId(), multipartFile);
+	}
+
+	@GetMapping("v1/company-documents/{companyId}")
+	public List<CompanyDocument> retreiveCompanyDocuments(
+			@PathVariable(name = "companyId", required = true) final UUID companyId) {
+		return companyDocumentService.retreive(companyId);
 	}
 
 	@PostMapping("v1/company-document")
@@ -60,6 +85,11 @@ public class CompanyController extends AuthenticationInterceptor {
 		companyDocumentService.create(parsedCompanyDocumentCreationRequest, getUserDetails().getUserId(), document);
 	}
 
+	@GetMapping("v1/company-events")
+	public List<CompanyEvent> retreiveCompanyEventsHandler() {
+		return companyEventService.retreive(getUserDetails().getUserId());
+	}
+
 	@PostMapping("v1/company-event")
 	public void companyEventCreationHandler(@RequestPart(name = "file", required = true) MultipartFile eventImage,
 			@RequestPart(name = "data", required = true) final String companyEventCreationRequest)
@@ -72,9 +102,24 @@ public class CompanyController extends AuthenticationInterceptor {
 		companyEventService.create(parsedCompanyEventCreationRequest, getUserDetails().getUserId(), eventImage);
 	}
 
+	@GetMapping("v1/company-invites")
+	public List<CompanyJoinInvitation> getCompanyJoinInvitations() {
+		return companyJoinInvitationService.retreiveInvitations(getUserDetails().getUserId());
+	}
+
 	@PostMapping("v1/company-invite")
 	public void companyJoiningInvitationHandler(
 			@RequestBody(required = true) final CompanyJoinInvitationCreationRequest companyJoinInvitationCreationRequest) {
 		companyJoinInvitationService.sendInvite(companyJoinInvitationCreationRequest, getUserDetails().getUserId());
+	}
+
+	@GetMapping("v1/company-issue")
+	public List<EmployeeIssue> reteiveIssuesRelatedToCompany() {
+		return employeeIssueService.retreive(getUserDetails().getUserId());
+	}
+
+	@GetMapping("v1/company-employees")
+	public List<Employee> retreiveCompanyEmployeesHandler() {
+		return companyService.retreiveEmployees(getUserDetails().getUserId());
 	}
 }

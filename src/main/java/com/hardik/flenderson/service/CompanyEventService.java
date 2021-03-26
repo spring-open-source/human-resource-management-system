@@ -1,7 +1,9 @@
 package com.hardik.flenderson.service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import com.hardik.flenderson.enums.ExceptionMessage;
 import com.hardik.flenderson.exception.InvalidManagerIdException;
 import com.hardik.flenderson.mailing.event.EventCreationEvent;
 import com.hardik.flenderson.repository.CompanyEventRepository;
+import com.hardik.flenderson.repository.EmployeeRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
 import com.hardik.flenderson.request.CompanyEventCreationRequest;
 import com.hardik.flenderson.storage.StorageService;
@@ -27,6 +30,8 @@ public class CompanyEventService {
 	private final CompanyEventRepository companyEventRepository;
 
 	private final ManagerRepository managerRepository;
+
+	private final EmployeeRepository employeeRepository;
 
 	private final StorageService storageService;
 
@@ -64,6 +69,16 @@ public class CompanyEventService {
 				companyEventRepository.save(companyEvent);
 			}
 		});
+	}
+
+	public List<CompanyEvent> retreive(UUID userId) {
+		if (employeeRepository.existsById(userId)) {
+			final var employee = employeeRepository.findById(userId).get();
+			return employee.getCompany().getCompanyEvents().parallelStream().collect(Collectors.toList());
+		} else {
+			final var manager = managerRepository.findById(userId).get();
+			return manager.getCompany().getCompanyEvents().parallelStream().collect(Collectors.toList());
+		}
 	}
 
 }

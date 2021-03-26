@@ -1,5 +1,6 @@
 package com.hardik.flenderson.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -42,6 +43,10 @@ public class AdminSupportTicketService {
 				() -> new InvalidSupportTicketIdException(ExceptionMessage.INVALID_SUPPORT_TICKET_ID.getMessage()));
 		adminSupportTicket.setIsActive(false);
 		adminSupportTicketRepository.save(adminSupportTicket);
+	}
+
+	public List<AdminSupportTicket> retreive() {
+		return adminSupportTicketRepository.findAll();
 	}
 
 }

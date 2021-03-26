@@ -1,7 +1,9 @@
 package com.hardik.flenderson.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,13 @@ public class CompanyJoinInvitationService {
 						.email(companyJoinInvitationCreationRequest.getEmailId())
 						.employeeName(companyJoinInvitationCreationRequest.getName())
 						.managerName(manager.getFirstName() + " " + manager.getLastName()).build()));
+	}
+
+	public List<CompanyJoinInvitation> retreiveInvitations(UUID managerId) {
+		final var manager = managerRepository.findById(managerId)
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()));
+		final var company = manager.getCompany();
+		return company.getCompanyJoinInvitations().parallelStream().collect(Collectors.toList());
 	}
 
 }

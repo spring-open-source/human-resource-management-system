@@ -1,6 +1,8 @@
 package com.hardik.flenderson.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -51,6 +53,12 @@ public class ManagerSocialService {
 		final var managerSocial = managerSocialRepository.findById(managerSocialId).orElseThrow(
 				() -> new InvalidManagerSocialIdException(ExceptionMessage.INVALID_MANAGER_SOCIAL_ID.getMessage()));
 		managerSocialRepository.delete(managerSocial);
+	}
+
+	public List<ManagerSocial> retreive(UUID managerId) {
+		return managerRepository.findById(managerId)
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()))
+				.getManagerSocials().parallelStream().collect(Collectors.toList());
 	}
 
 }

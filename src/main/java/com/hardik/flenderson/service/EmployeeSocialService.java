@@ -1,5 +1,6 @@
 package com.hardik.flenderson.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -52,6 +53,10 @@ public class EmployeeSocialService {
 		final var employeeSocial = employeeSocialRepository.findById(employeeSocialId).orElseThrow(
 				() -> new InvalidEmployeeSocialIdException(ExceptionMessage.INVALID_EMPLOYEE_SOCIAL_ID.getMessage()));
 		employeeSocialRepository.delete(employeeSocial);
+	}
+
+	public List<EmployeeSocial> retreive(UUID employeeId) {
+		return employeeSocialRepository.findByEmployeeId(employeeId);
 	}
 
 }

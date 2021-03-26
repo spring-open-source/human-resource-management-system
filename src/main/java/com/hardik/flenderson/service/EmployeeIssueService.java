@@ -1,6 +1,8 @@
 package com.hardik.flenderson.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import com.hardik.flenderson.mailing.event.IssueRecievedEvent;
 import com.hardik.flenderson.mailing.event.IssueResponseEvent;
 import com.hardik.flenderson.repository.EmployeeIssueRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
+import com.hardik.flenderson.repository.ManagerRepository;
 import com.hardik.flenderson.request.EmployeeIssueCreationRequest;
 import com.hardik.flenderson.request.EmployeeIssueResponseCreationRequest;
 import com.hardik.flenderson.utility.EmployeeIssueUtility;
@@ -30,6 +33,8 @@ public class EmployeeIssueService {
 	private final EmployeeIssueRepository employeeIssueRepository;
 
 	private final EmployeeRepository employeeRepository;
+
+	private final ManagerRepository managerRepository;
 
 	private final ApplicationEventPublisher applicationEventPublisher;
 
@@ -70,6 +75,16 @@ public class EmployeeIssueService {
 
 		applicationEventPublisher.publishEvent(new IssueResponseEvent(IssueResponseRecievedDto.builder()
 				.email(employee.getEmailId()).firstName(employee.getFirstName()).build()));
+	}
+
+	public List<EmployeeIssue> retreive(UUID userId) {
+		if (employeeRepository.existsById(userId)) {
+			final var employee = employeeRepository.findById(userId).get();
+			return employee.getCompany().getEmployeeIssues().parallelStream().collect(Collectors.toList());
+		} else {
+			final var manager = managerRepository.findById(userId).get();
+			return manager.getCompany().getEmployeeIssues().parallelStream().collect(Collectors.toList());
+		}
 	}
 
 }

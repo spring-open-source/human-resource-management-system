@@ -1,5 +1,6 @@
 package com.hardik.flenderson.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -44,6 +45,10 @@ public class CompanyDocumentService {
 
 		final var savedCompanyDocument = companyDocumentRepository.save(companyDocument);
 
+	}
+
+	public List<CompanyDocument> retreive(UUID companyId) {
+		return companyDocumentRepository.findByCompanyId(companyId);
 	}
 
 }
