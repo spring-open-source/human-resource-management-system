@@ -58,19 +58,19 @@ public class ManagerController extends AuthenticationInterceptor {
 	@PostMapping("v1/accept-join-request")
 	public void acceptCompanyJoinRequest(
 			@RequestBody(required = true) final AcceptCompanyJoinRequest acceptCompanyJoinRequest) {
-		managerService.acceptCompanyJoinRequest(acceptCompanyJoinRequest);
+		managerService.acceptCompanyJoinRequest(acceptCompanyJoinRequest, getUserDetails().getUserId());
 	}
 
 	@PostMapping("v1/reject-join-request")
 	public void rejectCompanyJoinRequest(
 			@RequestBody(required = true) final RejectCompanyJoinRequest rejectCompanyJoinRequest) {
-		managerService.rejectCompanyJoinRequest(rejectCompanyJoinRequest);
+		managerService.rejectCompanyJoinRequest(rejectCompanyJoinRequest, getUserDetails().getUserId());
 	}
 
 	@PostMapping("v1/remove-from-company")
 	public void removeEmployeeFromCompanyHandler(
 			@RequestBody(required = true) final RemoveEmployeeFromCompanyRequest removeEmployeeFromCompanyRequest) {
-		managerService.removeEmployeeFromCompany(removeEmployeeFromCompanyRequest);
+		managerService.removeEmployeeFromCompany(removeEmployeeFromCompanyRequest, getUserDetails().getUserId());
 	}
 
 	@PostMapping("v1/employee-issue-response")

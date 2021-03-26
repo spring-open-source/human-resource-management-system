@@ -2,12 +2,15 @@ package com.hardik.flenderson.service;
 
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.entity.Company;
 import com.hardik.flenderson.enums.ExceptionMessage;
 import com.hardik.flenderson.exception.InvalidManagerIdException;
+import com.hardik.flenderson.mailing.dto.CompanyCreationDto;
+import com.hardik.flenderson.mailing.event.CompanyCreationEvent;
 import com.hardik.flenderson.repository.CompanyRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
 import com.hardik.flenderson.request.CompanyCreationRequest;
@@ -27,6 +30,8 @@ public class CompanyService {
 
 	private final StorageService storageService;
 
+	private final ApplicationEventPublisher applicationEventPublisher;
+
 	public void create(CompanyCreationRequest companyCreationRequest, UUID managerId, MultipartFile companyLogo) {
 		final var company = new Company();
 		final var manager = managerRepository.findById(managerId)
@@ -43,6 +48,9 @@ public class CompanyService {
 		final var savedCompany = companyRepository.save(company);
 		manager.setCompany(savedCompany);
 		managerRepository.save(manager);
+		applicationEventPublisher.publishEvent(new CompanyCreationEvent(CompanyCreationDto.builder()
+				.companyCode(savedCompany.getCompanyCode()).companyName(savedCompany.getName())
+				.email(manager.getEmailId()).firstName(manager.getFirstName()).build()));
 	}
 
 }

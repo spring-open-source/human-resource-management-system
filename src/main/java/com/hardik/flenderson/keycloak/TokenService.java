@@ -67,9 +67,9 @@ public class TokenService {
 		final var keyCloakUser = JwtUtility.getUser(keycloakTokenDto.getAccess_token());
 		UUID userId = null;
 		if (accountType.equals(AccountType.MANAGER.getAccountType())) {
-			userId = managerService.getManager(keyCloakUser).getId();
+			userId = managerService.getManagerFromKeycloakUserHandler(keyCloakUser).getId();
 		} else if (accountType.equals(AccountType.EMPLOYEE.getAccountType())) {
-			userId = employeeService.getEmployee(keyCloakUser).getId();
+			userId = employeeService.getEmployeeFromKeycloakUserHandler(keyCloakUser).getId();
 		} else {
 			throw new CorrectScopeNotSpecifiedException(ExceptionMessage.CORRECT_SCOPE_NOT_SPECIFIED.getMessage());
 		}

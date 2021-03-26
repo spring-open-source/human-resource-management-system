@@ -3,12 +3,15 @@ package com.hardik.flenderson.service;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hardik.flenderson.entity.CompanyEvent;
+import com.hardik.flenderson.enums.CompanyStatus;
 import com.hardik.flenderson.enums.ExceptionMessage;
 import com.hardik.flenderson.exception.InvalidManagerIdException;
+import com.hardik.flenderson.mailing.event.EventCreationEvent;
 import com.hardik.flenderson.repository.CompanyEventRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
 import com.hardik.flenderson.request.CompanyEventCreationRequest;
@@ -26,6 +29,8 @@ public class CompanyEventService {
 	private final ManagerRepository managerRepository;
 
 	private final StorageService storageService;
+
+	private final ApplicationEventPublisher applicationEventPublisher;
 
 	public void create(CompanyEventCreationRequest companyEventCreationRequest, UUID managerId,
 			MultipartFile eventImage) {
@@ -47,6 +52,9 @@ public class CompanyEventService {
 			companyEvent.setImageUrl(eventImageKey);
 		}
 		final var savedCompanyEvent = companyEventRepository.save(companyEvent);
+		applicationEventPublisher.publishEvent(new EventCreationEvent(company.getEmployees().stream()
+				.filter(employee -> employee.getCompanyStatus().equals(CompanyStatus.IN_COMPANY.getStatusId()))));
+
 	}
 
 	public void inspectForExpiredEvents() {

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,9 +24,18 @@ import com.hardik.flenderson.exception.InvalidManagerEmailException;
 import com.hardik.flenderson.exception.InvalidManagerIdException;
 import com.hardik.flenderson.exception.InvalidMonthlySalaryDetailIdException;
 import com.hardik.flenderson.keycloak.dto.KeycloakUserDto;
+import com.hardik.flenderson.mailing.dto.CompanyJoinRequestAcceptDto;
+import com.hardik.flenderson.mailing.dto.CompanyJoinRequestRejectedDto;
+import com.hardik.flenderson.mailing.dto.RemovedFromCompanyDto;
+import com.hardik.flenderson.mailing.dto.SimpleEmailDto;
+import com.hardik.flenderson.mailing.event.CompanyJoiningRequestAcceptanceEvent;
+import com.hardik.flenderson.mailing.event.CompanyJoiningRequestRejectionEvent;
+import com.hardik.flenderson.mailing.event.ManagerAccountCreationEvent;
+import com.hardik.flenderson.mailing.event.RemovalFromCompanyEvent;
 import com.hardik.flenderson.repository.EmployeeDailyAttendanceRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
 import com.hardik.flenderson.repository.EmployeeRoleRepository;
+import com.hardik.flenderson.repository.EmployeeSocialRepository;
 import com.hardik.flenderson.repository.ManagerRepository;
 import com.hardik.flenderson.repository.MasterRoleRepository;
 import com.hardik.flenderson.repository.MonthlySalaryDetailRepository;
@@ -61,7 +71,11 @@ public class ManagerService {
 
 	private final MasterRoleRepository masterRoleRepository;
 
-	public Manager getManager(KeycloakUserDto keyCloakUser) {
+	private final ApplicationEventPublisher applicationEventPublisher;
+
+	private final EmployeeSocialRepository employeeSocialRepository;
+
+	public Manager getManagerFromKeycloakUserHandler(KeycloakUserDto keyCloakUser) {
 		if (managerRepository.existsByEmailIdIgnoreCase(keyCloakUser.getEmail()))
 			return managerRepository.findByEmailIdIgnoreCase(keyCloakUser.getEmail()).orElseThrow(
 					() -> new InvalidManagerEmailException(ExceptionMessage.INVALID_MANAGER_EMAIL.getMessage()));
@@ -70,6 +84,8 @@ public class ManagerService {
 			manager.setFirstName(keyCloakUser.getFirstName());
 			manager.setLastName(keyCloakUser.getLastName());
 			manager.setEmailId(keyCloakUser.getEmail());
+			applicationEventPublisher.publishEvent(
+					new ManagerAccountCreationEvent(SimpleEmailDto.builder().email(keyCloakUser.getEmail()).build()));
 			return managerRepository.save(manager);
 		}
 	}
@@ -117,7 +133,10 @@ public class ManagerService {
 				.status(manager.getStatus()).profileCompleted(manager.getGender() == null ? false : true).build();
 	}
 
-	public void acceptCompanyJoinRequest(AcceptCompanyJoinRequest acceptCompanyJoinRequest) {
+	public void acceptCompanyJoinRequest(AcceptCompanyJoinRequest acceptCompanyJoinRequest, UUID managerId) {
+		final var manager = managerRepository.findById(managerId)
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()));
+		final var company = manager.getCompany();
 		final var employee = employeeRepository.findById(acceptCompanyJoinRequest.getEmployeeId())
 				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		employee.setCompanyStatus(CompanyStatus.IN_COMPANY.getStatusId());
@@ -148,12 +167,19 @@ public class ManagerService {
 				employeeRoleRepository.save(employeeRole);
 			});
 		}
+
+		applicationEventPublisher
+				.publishEvent(new CompanyJoiningRequestAcceptanceEvent(CompanyJoinRequestAcceptDto.builder()
+						.companyName(company.getName()).email(employee.getEmailId()).firstName(employee.getFirstName())
+						.managerName(manager.getFirstName() + " " + manager.getLastName()).build()));
 	}
 
-	public void rejectCompanyJoinRequest(RejectCompanyJoinRequest rejectCompanyJoinRequest) {
+	public void rejectCompanyJoinRequest(RejectCompanyJoinRequest rejectCompanyJoinRequest, UUID managerId) {
 		final var employee = employeeRepository.findById(rejectCompanyJoinRequest.getEmployeeId())
 				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		final var company = employee.getCompany();
+		final var manager = managerRepository.findById(managerId)
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()));
 		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
 		employee.setCompany(null);
 		employee.setCompanyId(null);
@@ -167,12 +193,20 @@ public class ManagerService {
 		rejectedEmployeeMapping.setIsActive(true);
 
 		rejectedEmployeeCompanyMappingRepository.save(rejectedEmployeeMapping);
+
+		applicationEventPublisher
+				.publishEvent(new CompanyJoiningRequestRejectionEvent(CompanyJoinRequestRejectedDto.builder()
+						.companyName(company.getName()).email(employee.getEmailId()).firstName(employee.getFirstName())
+						.managerName(manager.getFirstName() + " " + manager.getLastName()).build()));
 	}
 
-	public void removeEmployeeFromCompany(RemoveEmployeeFromCompanyRequest removeEmployeeFromCompanyRequest) {
+	public void removeEmployeeFromCompany(RemoveEmployeeFromCompanyRequest removeEmployeeFromCompanyRequest,
+			UUID managerId) {
 		final var employee = employeeRepository.findById(removeEmployeeFromCompanyRequest.getEmployeeId())
 				.orElseThrow(() -> new InvalidEmployeeIdException(ExceptionMessage.INVALID_EMPLOYEE_ID.getMessage()));
 		final var company = employee.getCompany();
+		final var manager = managerRepository.findById(managerId)
+				.orElseThrow(() -> new InvalidManagerIdException(ExceptionMessage.INVALID_MANAGER_ID.getMessage()));
 		employee.setCompanyStatus(CompanyStatus.IN_NO_COMPANY.getStatusId());
 		employee.setCompany(null);
 		employee.setCompanyId(null);
@@ -194,6 +228,11 @@ public class ManagerService {
 		rejectedEmployeeCompanyMappingRepository.save(rejectedEmployeeMapping);
 
 		employeeRoleRepository.deleteAll(employeeRoleRepository.findByEmployeeId(employee.getId()));
+		employeeSocialRepository.deleteAll(employeeSocialRepository.findByEmployeeId(employee.getId()));
+
+		applicationEventPublisher.publishEvent(new RemovalFromCompanyEvent(RemovedFromCompanyDto.builder()
+				.companyname(company.getName()).email(employee.getEmailId()).firstName(employee.getFirstName())
+				.managerName(manager.getFirstName() + " " + manager.getLastName()).build()));
 	}
 
 }
