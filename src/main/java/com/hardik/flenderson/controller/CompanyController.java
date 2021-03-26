@@ -29,11 +29,13 @@ import com.hardik.flenderson.request.CompanyCreationRequest;
 import com.hardik.flenderson.request.CompanyDocumentCreationRequest;
 import com.hardik.flenderson.request.CompanyEventCreationRequest;
 import com.hardik.flenderson.request.CompanyJoinInvitationCreationRequest;
+import com.hardik.flenderson.request.RejectedEmployeeReversalRequest;
 import com.hardik.flenderson.service.CompanyDocumentService;
 import com.hardik.flenderson.service.CompanyEventService;
 import com.hardik.flenderson.service.CompanyJoinInvitationService;
 import com.hardik.flenderson.service.CompanyService;
 import com.hardik.flenderson.service.EmployeeIssueService;
+import com.hardik.flenderson.service.RejectedEmployeeCompanyMappingService;
 
 import lombok.AllArgsConstructor;
 
@@ -50,6 +52,8 @@ public class CompanyController extends AuthenticationInterceptor {
 	private final CompanyJoinInvitationService companyJoinInvitationService;
 
 	private final EmployeeIssueService employeeIssueService;
+
+	private final RejectedEmployeeCompanyMappingService rejectedEmployeeCompanyMappingService;
 
 	@GetMapping("v1/company")
 	public Company retreiveCompanyHandler() {
@@ -121,5 +125,16 @@ public class CompanyController extends AuthenticationInterceptor {
 	@GetMapping("v1/company-employees")
 	public List<Employee> retreiveCompanyEmployeesHandler() {
 		return companyService.retreiveEmployees(getUserDetails().getUserId());
+	}
+
+	@GetMapping("v1/rejected-employees")
+	public List<Employee> retreiveRejectedEmployees() {
+		return rejectedEmployeeCompanyMappingService.retreive(getUserDetails().getUserId());
+	}
+
+	@PostMapping("v1/rejected-employees")
+	public void unRejectEmployee(
+			@RequestBody(required = true) final RejectedEmployeeReversalRequest rejectedEmployeeReversalRequest) {
+		rejectedEmployeeCompanyMappingService.undo(rejectedEmployeeReversalRequest, getUserDetails().getUserId());
 	}
 }
