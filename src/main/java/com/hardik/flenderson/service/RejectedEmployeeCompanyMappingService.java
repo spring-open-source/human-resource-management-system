@@ -1,5 +1,6 @@
 package com.hardik.flenderson.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,6 +39,19 @@ public class RejectedEmployeeCompanyMappingService {
 		rejectedEmployeeCompanyMappingRepository.deleteById(rejectedEmployeeCompanyMappingRepository
 				.findByEmployeeIdAndCompanyId(rejectedEmployeeReversalRequest.getEmployeeId(), company.getId()).get()
 				.getId());
+	}
+
+	public void inspectExpiration() {
+		rejectedEmployeeCompanyMappingRepository.findAll().parallelStream()
+				.filter(rejectedEmployeeCompanyMapping -> rejectedEmployeeCompanyMapping.getIsActive().equals(true))
+				.collect(Collectors.toList()).stream().forEach(rejectedEmployeeCompanyMapping -> {
+					if (rejectedEmployeeCompanyMapping.getCreatedAt().plusMonths(3).isBefore(LocalDateTime.now())) {
+						rejectedEmployeeCompanyMapping.setIsActive(false);
+						rejectedEmployeeCompanyMappingRepository.save(rejectedEmployeeCompanyMapping);
+					}
+
+				});
+		;
 	}
 
 }
