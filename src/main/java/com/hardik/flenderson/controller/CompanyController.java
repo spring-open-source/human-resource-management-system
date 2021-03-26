@@ -1,6 +1,7 @@
 package com.hardik.flenderson.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,8 +17,10 @@ import com.hardik.flenderson.interceptor.AuthenticationInterceptor;
 import com.hardik.flenderson.request.CompanyCreationRequest;
 import com.hardik.flenderson.request.CompanyDocumentCreationRequest;
 import com.hardik.flenderson.request.CompanyEventCreationRequest;
+import com.hardik.flenderson.request.CompanyJoinInvitationCreationRequest;
 import com.hardik.flenderson.service.CompanyDocumentService;
 import com.hardik.flenderson.service.CompanyEventService;
+import com.hardik.flenderson.service.CompanyJoinInvitationService;
 import com.hardik.flenderson.service.CompanyService;
 
 import lombok.AllArgsConstructor;
@@ -31,6 +34,8 @@ public class CompanyController extends AuthenticationInterceptor {
 	private final CompanyDocumentService companyDocumentService;
 
 	private final CompanyEventService companyEventService;
+
+	private final CompanyJoinInvitationService companyJoinInvitationService;
 
 	@PostMapping("v1/company")
 	public void companyCreationHandler(@RequestPart(name = "file", required = false) MultipartFile multipartFile,
@@ -65,6 +70,11 @@ public class CompanyController extends AuthenticationInterceptor {
 				.registerModule(new JavaTimeModule())
 				.readValue(companyEventCreationRequest, CompanyEventCreationRequest.class);
 		companyEventService.create(parsedCompanyEventCreationRequest, getUserDetails().getUserId(), eventImage);
-	}	
+	}
 
+	@PostMapping("v1/company-invite")
+	public void companyJoiningInvitationHandler(
+			@RequestBody(required = true) final CompanyJoinInvitationCreationRequest companyJoinInvitationCreationRequest) {
+		companyJoinInvitationService.sendInvite(companyJoinInvitationCreationRequest, getUserDetails().getUserId());
+	}
 }
