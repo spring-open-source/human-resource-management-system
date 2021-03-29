@@ -220,7 +220,9 @@ CREATE TABLE attendance_records(
   employee_id UUID NOT NULL,
   was_marked BOOLEAN NOT NULL,
   attendance BOOLEAN NOT NULL,
-  date DATE NOT NULL
+  day INTEGER NOT NULL,
+  month INTEGER NOT NULL,
+  year INTEGER NOT NULL  
 );
 
 CREATE TABLE salary_records(

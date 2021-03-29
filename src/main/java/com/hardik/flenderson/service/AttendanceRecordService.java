@@ -22,9 +22,14 @@ public class AttendanceRecordService {
 			final var attendanceRecord = new AttendanceRecord();
 			attendanceRecord.setCompanyId(dailyAttendanceDto.getCompanyId());
 			attendanceRecord.setEmployeeId(dailyAttendanceDto.getEmployeeId());
-			attendanceRecord.setDate(dailyAttendanceDto.getDate());
 			attendanceRecord.setMarked(dailyAttendanceDto.isMarked());
 			attendanceRecord.setPresent(dailyAttendanceDto.isPresent());
+			
+			final var dateToRecord = dailyAttendanceDto.getDate();
+			attendanceRecord.setDay(dateToRecord.getDayOfMonth());
+			attendanceRecord.setMonth(dateToRecord.getMonthValue());
+			attendanceRecord.setYear(dateToRecord.getYear());
+			
 			attendanceRecords.add(attendanceRecord);
 		});
 		attendanceRecordRepository.saveAll(attendanceRecords);

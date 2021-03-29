@@ -1,7 +1,6 @@
 package com.hardik.flenderson.entity;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -37,8 +36,13 @@ public class AttendanceRecord implements Serializable{
 	@Column(name = "attendance", nullable = false)
 	private Boolean present;
 	
-	@Column(name = "date", nullable = false)
-	private LocalDate date;
+	@Column(name = "day", nullable = false)
+	private Integer day;
 	
+	@Column(name = "month", nullable = false)
+	private Integer month;
+	
+	@Column(name = "year", nullable = false)
+	private Integer year;	
 
 }
