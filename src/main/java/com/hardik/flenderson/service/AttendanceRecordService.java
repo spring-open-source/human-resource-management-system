@@ -15,12 +15,15 @@ import org.springframework.stereotype.Service;
 
 import com.hardik.flenderson.dto.AttendanceWrapperDto;
 import com.hardik.flenderson.entity.AttendanceRecord;
+import com.hardik.flenderson.entity.CompanyReport;
 import com.hardik.flenderson.enums.ExceptionMessage;
+import com.hardik.flenderson.enums.ReportType;
 import com.hardik.flenderson.exception.InvalidCompanyIdException;
 import com.hardik.flenderson.exception.InvalidEmployeeEmailIdException;
 import com.hardik.flenderson.mailing.dto.MonthlyAttendanceReportDto;
 import com.hardik.flenderson.mailing.event.MonthlyAttendanceReportEvent;
 import com.hardik.flenderson.repository.AttendanceRecordRepository;
+import com.hardik.flenderson.repository.CompanyReportRepository;
 import com.hardik.flenderson.repository.CompanyRepository;
 import com.hardik.flenderson.repository.EmployeeRepository;
 import com.hardik.flenderson.storage.StorageService;
@@ -42,6 +45,8 @@ public class AttendanceRecordService {
 	private final StorageService storageService;
 
 	private final ApplicationEventPublisher applicationEventPublisher;
+	
+	private final CompanyReportRepository companyReportRepository;
 
 	public void saveAll(AttendanceWrapperDto attendanceWrapperDto) {
 		final var attendanceRecords = new ArrayList<AttendanceRecord>();
@@ -132,12 +137,21 @@ public class AttendanceRecordService {
 				count.refresh();
 				workBook.finish();
 				outputStream.flush();
-				storageService.save(S3KeyUtility.getMonthlyAttendanceRecordKey(month, year, manager, company),
+				String monthlyAttendanceRecordKey = S3KeyUtility.getMonthlyAttendanceRecordKey(month, year, manager, company);
+				storageService.save(monthlyAttendanceRecordKey,
 						new ByteArrayInputStream(outputStream.toByteArray()));
 				applicationEventPublisher.publishEvent(new MonthlyAttendanceReportEvent(
 						MonthlyAttendanceReportDto.builder().companyName(company.getName()).email(manager.getEmailId())
 								.managerName(manager.getFirstName() + " " + manager.getLastName())
 								.month(Month.of(month).name()).build()));
+				
+				final var companyReport = new CompanyReport();
+				companyReport.setCompanyId(company.getId());
+				companyReport.setMonth(month);
+				companyReport.setYear(year);
+				companyReport.setReportType(ReportType.MONTHLY_ATTENDANCE_RECORD.getId());
+				companyReport.setS3Key(monthlyAttendanceRecordKey);
+				companyReportRepository.save(companyReport);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

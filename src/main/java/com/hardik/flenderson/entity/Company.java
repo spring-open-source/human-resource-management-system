@@ -82,4 +82,10 @@ public class Company implements Serializable {
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "company")
 	private Set<CompanyJoinInvitation> companyJoinInvitations;
+	
+	@Hidden
+	@Exclude
+	@JsonIgnore
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "company")
+	private Set<CompanyReport> companyReports;
 }
