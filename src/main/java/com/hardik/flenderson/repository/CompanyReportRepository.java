@@ -1,5 +1,6 @@
 package com.hardik.flenderson.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,5 +10,7 @@ import com.hardik.flenderson.entity.CompanyReport;
 
 @Repository
 public interface CompanyReportRepository extends JpaRepository<CompanyReport, UUID> {
+	
+	List<CompanyReport> findByCompanyId(UUID companyId);
 
 }

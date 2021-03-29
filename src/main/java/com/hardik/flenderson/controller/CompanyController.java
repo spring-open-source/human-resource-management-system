@@ -22,6 +22,7 @@ import com.hardik.flenderson.entity.Company;
 import com.hardik.flenderson.entity.CompanyDocument;
 import com.hardik.flenderson.entity.CompanyEvent;
 import com.hardik.flenderson.entity.CompanyJoinInvitation;
+import com.hardik.flenderson.entity.CompanyReport;
 import com.hardik.flenderson.entity.Employee;
 import com.hardik.flenderson.entity.EmployeeIssue;
 import com.hardik.flenderson.interceptor.AuthenticationInterceptor;
@@ -33,6 +34,7 @@ import com.hardik.flenderson.request.RejectedEmployeeReversalRequest;
 import com.hardik.flenderson.service.CompanyDocumentService;
 import com.hardik.flenderson.service.CompanyEventService;
 import com.hardik.flenderson.service.CompanyJoinInvitationService;
+import com.hardik.flenderson.service.CompanyReportService;
 import com.hardik.flenderson.service.CompanyService;
 import com.hardik.flenderson.service.EmployeeIssueService;
 import com.hardik.flenderson.service.RejectedEmployeeCompanyMappingService;
@@ -54,6 +56,8 @@ public class CompanyController extends AuthenticationInterceptor {
 	private final EmployeeIssueService employeeIssueService;
 
 	private final RejectedEmployeeCompanyMappingService rejectedEmployeeCompanyMappingService;
+
+	private final CompanyReportService companyReportService;
 
 	@GetMapping("v1/company")
 	public Company retreiveCompanyHandler() {
@@ -136,5 +140,11 @@ public class CompanyController extends AuthenticationInterceptor {
 	public void unRejectEmployee(
 			@RequestBody(required = true) final RejectedEmployeeReversalRequest rejectedEmployeeReversalRequest) {
 		rejectedEmployeeCompanyMappingService.undo(rejectedEmployeeReversalRequest, getUserDetails().getUserId());
+	}
+
+	@GetMapping("v1/company-reports/{reportType}")
+	public List<CompanyReport> companyReportsRetrievalHandler(
+			@PathVariable(name = "reportType", required = true) final Integer reportType) {
+		return companyReportService.retreive(reportType, getUserDetails().getUserId());
 	}
 }
