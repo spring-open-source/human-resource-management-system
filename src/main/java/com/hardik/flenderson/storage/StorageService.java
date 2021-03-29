@@ -1,5 +1,6 @@
 package com.hardik.flenderson.storage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -36,6 +37,18 @@ public class StorageService {
 		}
 	}
 
+
+	public void save(String key, InputStream file) {
+		try {
+			ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentLength(file.available());
+			amazonS3Bean.amazonS3().putObject(amazonS3Configuration.getStorage().getBucketName(), key,
+					file, null);
+		} catch (SdkClientException | IOException e) {
+			log.error("UNABLE TO STORE FILE IN S3 FOR " + key + " " + LocalDateTime.now());
+		}
+	}
+	
 	public S3Object getFile(String key) {
 		return amazonS3Bean.amazonS3().getObject(amazonS3Configuration.getStorage().getBucketName(), key);
 	}

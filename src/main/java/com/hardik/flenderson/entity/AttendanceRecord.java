@@ -24,7 +24,7 @@ public class AttendanceRecord implements Serializable{
 	@Column(name = "id", nullable = false, unique = true, insertable = false, updatable = false)
 	private Integer id;
 	
-	@Column(name = "compay_id", nullable = false)
+	@Column(name = "company_id", nullable = false)
 	private UUID companyId;
 	
 	@Column(name = "employee_id", nullable = false)
