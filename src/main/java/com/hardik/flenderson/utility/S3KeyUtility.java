@@ -33,4 +33,8 @@ public class S3KeyUtility {
 		return "MANAGER/" + manager.getEmailId() + "/" + company.getName() + "/ATTENDANCE-RECORD/" + month + "-" + year;
 	}
 
+	public String getMonthlyPayrollRecordKey(int month, int year, Manager manager, Company company) {
+		return "MANAGER/" + manager.getEmailId() + "/" + company.getName() + "/PAYROLL-RECORD/" + month + "-" + year;
+	}
+
 }
