@@ -2,7 +2,7 @@ package com.hardik.flenderson.storage.bean;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -13,7 +13,7 @@ import com.hardik.flenderson.storage.configuration.AmazonS3Configuration;
 
 import lombok.AllArgsConstructor;
 
-@Component
+@Configuration
 @AllArgsConstructor
 @EnableConfigurationProperties(AmazonS3Configuration.class)
 public class AmazonS3Bean {
