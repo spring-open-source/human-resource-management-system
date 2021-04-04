@@ -13,6 +13,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.CreateTopicRequest;
+import com.amazonaws.services.sns.model.ListSubscriptionsByTopicRequest;
 import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
@@ -131,30 +132,51 @@ public class AwsServiceInitializer implements ApplicationListener<ApplicationCon
 					+ "\" ALREADY EXISTS!");
 		}
 
-		// SUBSCRIBING ATTENDANCE QUEUE WITH ATTENDANCE TOPIC
-		log.info("SUBSCRIBING ATTENDANCE QUEUE " + attendanceSqsConfiguration.getQueueName()
-				+ " TO ATTENDANCE SNS TOPIC " + attendanceSnsConfiguration.getTopicArn());
+		// RETREIVING ATTENDANCE QUEUE ATTRIBUTES
 		var attendanceQueueUrl = amazonSQSAsync.listQueues().getQueueUrls().parallelStream()
 				.filter(queueUrl -> queueUrl.contains(attendanceSqsConfiguration.getQueueName()))
 				.collect(Collectors.toList()).get(0);
 		var attendanceQueueAttributes = amazonSQSAsync.getQueueAttributes(attendanceQueueUrl, List.of("All"))
 				.getAttributes();
-		amazonSNSClient.subscribe(new SubscribeRequest(attendanceSnsConfiguration.getTopicArn(), "sqs",
-				attendanceQueueAttributes.get("QueueArn")));
-		log.info("SUBSCRIBED ATTENDANCE QUEUE " + attendanceSqsConfiguration.getQueueName()
-				+ " TO ATTENDANCE SNS TOPIC " + attendanceSnsConfiguration.getTopicArn());
 
-		// SUBSCRIBING PAYROLL QUEUE WITH PAYROLL TOPIC
-		log.info("SUBSCRIBING PAYROLL QUEUE " + payrollSqsConfiuration.getQueueName() + " TO PAYROLL SNS TOPIC "
-				+ payrollSnsConfiguration.getTopicArn());
+		// RETREIVING PAYROLL QUEUE ATTRIBUTES
 		var payrollQueueUrl = amazonSQSAsync.listQueues().getQueueUrls().parallelStream()
 				.filter(queueUrl -> queueUrl.contains(attendanceSqsConfiguration.getQueueName()))
 				.collect(Collectors.toList()).get(0);
 		var payrollQueueAttributes = amazonSQSAsync.getQueueAttributes(payrollQueueUrl, List.of("All")).getAttributes();
-		amazonSNSClient.subscribe(new SubscribeRequest(payrollSnsConfiguration.getTopicArn(), "sqs",
-				payrollQueueAttributes.get("QueueArn")));
-		log.info("SUBSCRIBED PAYROLL QUEUE " + payrollSqsConfiuration.getQueueName() + " TO PAYROLL SNS TOPIC "
-				+ payrollSnsConfiguration.getTopicArn());
+
+		// MANAGING SUBSCRIPTION BETWEEN ATTENDANCE QUEUE AND ATTENDANCE TOPIC
+		if (!amazonSNSClient
+				.listSubscriptionsByTopic(new ListSubscriptionsByTopicRequest(attendanceSnsConfiguration.getTopicArn()))
+				.getSubscriptions().parallelStream().anyMatch(
+						subscription -> subscription.getEndpoint().equals(attendanceQueueAttributes.get("QueueArn")))) {
+			log.info("SUBSCRIBING ATTENDANCE QUEUE " + attendanceSqsConfiguration.getQueueName()
+					+ " TO ATTENDANCE SNS TOPIC " + attendanceSnsConfiguration.getTopicArn());
+			amazonSNSClient.subscribe(new SubscribeRequest(attendanceSnsConfiguration.getTopicArn(), "sqs",
+					attendanceQueueAttributes.get("QueueArn")));
+			log.info("SUBSCRIBED ATTENDANCE QUEUE " + attendanceSqsConfiguration.getQueueName()
+					+ " TO ATTENDANCE SNS TOPIC " + attendanceSnsConfiguration.getTopicArn());
+
+		} else {
+			log.info("ATTENDANCE QUEUE ALREADY BEEN SUBSCRIBED TO ATTENDANCE TOPIC");
+		}
+
+		// MANAGING SUBSCRIPTION BETWEEN PAYROLL QUEUE AND PAYROLL TOPIC
+		if (!amazonSNSClient
+				.listSubscriptionsByTopic(new ListSubscriptionsByTopicRequest(payrollSnsConfiguration.getTopicArn()))
+				.getSubscriptions().parallelStream()
+				.anyMatch(subscription -> subscription.getEndpoint().equals(payrollQueueAttributes.get("QueueArn")))) {
+			log.info("SUBSCRIBING PAYROLL QUEUE " + payrollSqsConfiuration.getQueueName() + " TO PAYROLL SNS TOPIC "
+					+ payrollSnsConfiguration.getTopicArn());
+			amazonSNSClient.subscribe(new SubscribeRequest(payrollSnsConfiguration.getTopicArn(), "sqs",
+					payrollQueueAttributes.get("QueueArn")));
+			log.info("SUBSCRIBED PAYROLL QUEUE " + payrollSqsConfiuration.getQueueName() + " TO PAYROLL SNS TOPIC "
+					+ payrollSnsConfiguration.getTopicArn());
+
+		} else {
+			log.info("PAYROLL QUEUE ALREADY BEEN SUBSCRIBED TO PAYROLL TOPIC");
+		}
+
 	}
 
 }
