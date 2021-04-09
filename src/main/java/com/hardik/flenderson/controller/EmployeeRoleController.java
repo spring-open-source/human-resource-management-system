@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import com.hardik.flenderson.service.MasterRoleService;
 
 @RestController
 @AllArgsConstructor
+@CrossOrigin("*")
 public class EmployeeRoleController {
 
 	private final MasterRoleService masterRoleService;

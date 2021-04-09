@@ -1,5 +1,6 @@
 package com.hardik.flenderson.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import lombok.AllArgsConstructor;
 
 @RestController
 @AllArgsConstructor
+@CrossOrigin("*")
 public class MonthlySalaryDetailController extends AuthenticationInterceptor {
 
 	private final MonthlySalaryDetailService monthlySalaryDetailService;
