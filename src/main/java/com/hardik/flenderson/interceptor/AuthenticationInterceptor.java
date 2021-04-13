@@ -37,7 +37,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 			throw new MissingAccessTokenAndUserIdException(
 					ExceptionMessage.MISSING_ACCESS_TOKEN_AND_USER_ID.getMessage());
 		final var idTokenArray = authentication.split(" ");
-		if (idTokenArray[0].toUpperCase() != "BEARER" || List.of(idTokenArray).size() == 2)
+		if (!idTokenArray[0].toUpperCase().equals("BEARER") || List.of(idTokenArray).size() == 2)
 			throw new AuthenticationBearerStrategyNotUsedException(
 					ExceptionMessage.AUTHENTICATION_BEARER_STRATEGY_NOT_USED.getMessage());
 		final var idToken = idTokenArray[1];
