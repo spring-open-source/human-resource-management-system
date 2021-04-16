@@ -108,7 +108,7 @@ public class EmployeeService {
 				.emailId(employee.getEmailId()).firstName(employee.getFirstName()).gender(employee.getGender())
 				.profilePicture(profilePicture).lastName(employee.getLastName()).middleName(employee.getMiddleName())
 				.status(employee.getStatus()).profileCompleted(employee.getGender() == null ? false : true)
-				.companyStatus(employee.getCompanyStatus()).build();
+				.companyStatus(employee.getCompanyStatus()).countryId(employee.getCountryId()).build();
 	}
 
 	public void joinCompanyRequest(CompanyJoinRequest companyJoinRequest, UUID employeeId) {

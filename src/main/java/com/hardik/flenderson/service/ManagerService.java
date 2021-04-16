@@ -130,7 +130,8 @@ public class ManagerService {
 		return ManagerDetailDto.builder().dateOfBirth(manager.getDateOfBirth()).description(manager.getDescription())
 				.emailId(manager.getEmailId()).firstName(manager.getFirstName()).gender(manager.getGender())
 				.profilePicture(profilePicture).lastName(manager.getLastName()).middleName(manager.getMiddleName())
-				.status(manager.getStatus()).profileCompleted(manager.getGender() == null ? false : true).build();
+				.status(manager.getStatus()).profileCompleted(manager.getGender() == null ? false : true)
+				.companyCreated(manager.getCompany() == null ? false : true).countryId(manager.getCountryId()).build();
 	}
 
 	public void acceptCompanyJoinRequest(AcceptCompanyJoinRequest acceptCompanyJoinRequest, UUID managerId) {

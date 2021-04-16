@@ -20,6 +20,7 @@ public class EmployeeDetailDto {
 	private final String gender;
 	private final String profilePicture;
 	private final LocalDate dateOfBirth;
+	private final Integer countryId;
 	private final boolean profileCompleted;
 	private final Integer companyStatus;
 

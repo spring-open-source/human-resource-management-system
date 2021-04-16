@@ -20,5 +20,7 @@ public class ManagerDetailDto {
 	private final String gender;
 	private final String profilePicture;
 	private final LocalDate dateOfBirth;
+	private final Integer countryId;
 	private final boolean profileCompleted;
+	private final boolean companyCreated;
 }

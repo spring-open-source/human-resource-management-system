@@ -52,7 +52,7 @@ public class CompanyService {
 		}
 
 		final var savedCompany = companyRepository.save(company);
-		manager.setCompany(savedCompany);
+		manager.setCompanyId(savedCompany.getId());
 		managerRepository.save(manager);
 		applicationEventPublisher.publishEvent(new CompanyCreationEvent(CompanyCreationDto.builder()
 				.companyCode(savedCompany.getCompanyCode()).companyName(savedCompany.getName())

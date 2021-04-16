@@ -59,8 +59,12 @@ public class TokenService {
 			keycloakTokenDto = restTemplate.postForObject(configuration.getDomain() + "/auth/realms/"
 					+ configuration.getRealmName() + "/protocol/openid-connect/token", request, KeycloakTokenDto.class);
 		} catch (Exception exception) {
+			exception.printStackTrace();
 			throw new KeycloakCodeExchangeFailureException(
 					ExceptionMessage.KEYCLOAK_CODE_EXCHANGE_FAILURE.getMessage());
+		}
+		while (keycloakTokenDto == null) {
+
 		}
 		final var accountType = keycloakTokenDto.getScope().contains("manager") ? AccountType.MANAGER.getAccountType()
 				: AccountType.EMPLOYEE.getAccountType();
@@ -96,6 +100,9 @@ public class TokenService {
 					+ configuration.getRealmName() + "/protocol/openid-connect/token", request, KeycloakTokenDto.class);
 		} catch (Exception exception) {
 			throw new RefreshAccessTokenFailureException(ExceptionMessage.REFRESH_ACCESS_TOKEN_FAILURE.getMessage());
+		}
+		while (keycloakTokenDto == null) {
+
 		}
 		return keycloakTokenDto;
 	}
