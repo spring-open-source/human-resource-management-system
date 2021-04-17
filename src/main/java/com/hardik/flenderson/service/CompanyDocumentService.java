@@ -38,7 +38,8 @@ public class CompanyDocumentService {
 		companyDocument.setName(companyDocumentCreationRequest.getName());
 
 		if (document != null && !document.isEmpty()) {
-			String documentKey = S3KeyUtility.getCompanyDocumentKey(manager, company.getName());
+			String documentKey = S3KeyUtility.getCompanyDocumentKey(manager, company.getName()) + "/"
+					+ companyDocumentCreationRequest.getName();
 			storageService.save(documentKey, document);
 			companyDocument.setDocumentUrl(documentKey);
 		}
@@ -47,8 +48,8 @@ public class CompanyDocumentService {
 
 	}
 
-	public List<CompanyDocument> retreive(UUID companyId) {
-		return companyDocumentRepository.findByCompanyId(companyId);
+	public List<CompanyDocument> retreive(UUID managerId) {
+		return companyDocumentRepository.findByCompanyId(managerRepository.findById(managerId).get().getCompanyId());
 	}
 
 }

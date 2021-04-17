@@ -1,7 +1,6 @@
 package com.hardik.flenderson.controller;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +48,7 @@ import lombok.AllArgsConstructor;
 		RequestMethod.HEAD, RequestMethod.OPTIONS, RequestMethod.OPTIONS, RequestMethod.PATCH, RequestMethod.POST,
 		RequestMethod.PUT, RequestMethod.TRACE })
 public class CompanyController extends AuthenticationInterceptor {
-	
+
 	private final CompanyService companyService;
 
 	private final CompanyDocumentService companyDocumentService;
@@ -80,10 +79,9 @@ public class CompanyController extends AuthenticationInterceptor {
 		companyService.create(parsedCompanyCreationRequest, getUserDetails().getUserId(), multipartFile);
 	}
 
-	@GetMapping("v1/company-documents/{companyId}")
-	public List<CompanyDocument> retreiveCompanyDocuments(
-			@PathVariable(name = "companyId", required = true) final UUID companyId) {
-		return companyDocumentService.retreive(companyId);
+	@GetMapping("v1/company-documents")
+	public List<CompanyDocument> retreiveCompanyDocuments() {
+		return companyDocumentService.retreive(getUserDetails().getUserId());
 	}
 
 	@PostMapping("v1/company-document")
