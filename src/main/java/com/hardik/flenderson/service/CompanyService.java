@@ -73,4 +73,11 @@ public class CompanyService {
 				.getCompany().getEmployees().parallelStream().collect(Collectors.toList());
 	}
 
+	public void refreshCodes() {
+		companyRepository.findAll().stream().forEach(company -> {
+			company.setCompanyCode(CompanyCodeUtility.generateCode());
+			companyRepository.save(company);
+		});
+	}
+
 }
