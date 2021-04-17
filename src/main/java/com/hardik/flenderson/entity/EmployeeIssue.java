@@ -19,7 +19,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode.Exclude;
 
 @Entity
-@Table(name = "employee_issue")
+@Table(name = "employee_issues")
 @Data
 public class EmployeeIssue implements Serializable {
 
