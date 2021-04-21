@@ -143,6 +143,7 @@ public class ManagerService {
 		employee.setCompanyStatus(CompanyStatus.IN_COMPANY.getStatusId());
 		final var employeeDailyAttendance = new EmployeeDailyAttendance();
 		employeeDailyAttendance.setDate(LocalDate.now());
+		employeeDailyAttendance.setIsMarked(false);
 		final var savedEmployeeDailyAttendance = employeeDailyAttendanceRepository.save(employeeDailyAttendance);
 		employee.setEmployeeDailyAttendanceId(savedEmployeeDailyAttendance.getId());
 		final var savedEmployee = employeeRepository.save(employee);

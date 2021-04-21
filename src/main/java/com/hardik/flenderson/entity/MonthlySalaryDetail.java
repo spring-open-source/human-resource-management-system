@@ -21,15 +21,15 @@ import lombok.EqualsAndHashCode.Exclude;
 @Entity
 @Table(name = "monthly_salary_details")
 @Data
-public class MonthlySalaryDetail implements Serializable{
+public class MonthlySalaryDetail implements Serializable {
 
 	private static final long serialVersionUID = -5757871027643454965L;
-	
+
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false, unique = true, insertable = false, updatable = false)
 	private Integer id;
-	
+
 	@Column(name = "employee_id", nullable = false)
 	private UUID employeeId;
 
@@ -38,16 +38,16 @@ public class MonthlySalaryDetail implements Serializable{
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "employee_id", nullable = false, insertable = false, updatable = false)
 	private Employee employee;
-	
+
 	@Column(name = "salary", nullable = false)
 	private Double salary;
-	
+
 	@Column(name = "penalty", nullable = true)
 	private Double penalty;
-	
+
 	@Column(name = "bonus", nullable = true)
 	private Double bonus;
-	
+
 	@Column(name = "created_at", nullable = false, insertable = false, updatable = false)
 	private LocalDateTime createdAt;
 

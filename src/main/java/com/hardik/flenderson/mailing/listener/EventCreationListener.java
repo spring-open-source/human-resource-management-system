@@ -1,6 +1,7 @@
 package com.hardik.flenderson.mailing.listener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.MessagingException;
@@ -29,7 +30,7 @@ public class EventCreationListener {
 	@EventListener
 	public void listenToEventCreationEvent(EventCreationEvent eventCreationEvent) {
 		@SuppressWarnings("unchecked")
-		List<Employee> employees = (List<Employee>) eventCreationEvent.getSource();
+		List<Employee> employees = (ArrayList<Employee>) eventCreationEvent.getSource();
 
 		for (Employee employee : employees) {
 			try {

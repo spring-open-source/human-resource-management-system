@@ -58,7 +58,8 @@ public class CompanyEventService {
 		}
 		final var savedCompanyEvent = companyEventRepository.save(companyEvent);
 		applicationEventPublisher.publishEvent(new EventCreationEvent(company.getEmployees().stream()
-				.filter(employee -> employee.getCompanyStatus().equals(CompanyStatus.IN_COMPANY.getStatusId()))));
+				.filter(employee -> employee.getCompanyStatus().equals(CompanyStatus.IN_COMPANY.getStatusId()))
+				.collect(Collectors.toList())));
 
 	}
 

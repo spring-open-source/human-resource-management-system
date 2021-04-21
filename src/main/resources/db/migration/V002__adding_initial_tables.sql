@@ -61,7 +61,7 @@ CREATE TABLE employee_daily_attendances (
   id UUID NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
   date DATE NOT NULL, 
   is_marked BOOLEAN NOT NULL, 
-  is_present BOOLEAN NOT NULL
+  is_present BOOLEAN
 );
    
 CREATE TABLE employees (
