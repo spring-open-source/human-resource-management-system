@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.mail.MessagingException;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.hardik.flenderson.enums.EmailTemplate;
@@ -21,15 +22,16 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public class MonthlyAttendanceReportListener {
-	
+
 	private final EmailService emailService;
 
 	@EventListener
+	@Async
 	public void listenToManagerAccountCreationEvent(MonthlyAttendanceReportEvent monthlyAttendanceReportEvent) {
 		var monthlyAttendanceReportDto = (MonthlyAttendanceReportDto) monthlyAttendanceReportEvent.getSource();
 		try {
-			emailService.sendEmail(monthlyAttendanceReportDto.getEmail(), MapUtility.convert(monthlyAttendanceReportDto),
-					EmailTemplate.MONTHLY_ATTENDANCE_REPORT.getName(),
+			emailService.sendEmail(monthlyAttendanceReportDto.getEmail(),
+					MapUtility.convert(monthlyAttendanceReportDto), EmailTemplate.MONTHLY_ATTENDANCE_REPORT.getName(),
 					EmailTemplate.MONTHLY_ATTENDANCE_REPORT.getSubject());
 		} catch (MessagingException | IOException | TemplateException e) {
 			log.error("UNABLE TO SEND MONTHLY ATTENDANCE REPORT NOTIFICATION " + e.toString());

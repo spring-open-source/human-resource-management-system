@@ -1,6 +1,7 @@
 package com.hardik.flenderson.mailing.listener;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.hardik.flenderson.mailing.EmailService;
@@ -15,6 +16,7 @@ public class RemovalFromCompanyListener {
 	private final EmailService emailService;
 
 	@EventListener
+	@Async
 	public void listenToRemovalFromCompanyEvent(RemovalFromCompanyEvent removalFromCompanyEvent) {
 
 	}

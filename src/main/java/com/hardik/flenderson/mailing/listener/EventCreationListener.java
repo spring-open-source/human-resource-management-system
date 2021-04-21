@@ -7,6 +7,8 @@ import java.util.List;
 import javax.mail.MessagingException;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.hardik.flenderson.entity.Employee;
@@ -28,6 +30,7 @@ public class EventCreationListener {
 	private final EmailService emailService;
 
 	@EventListener
+	@Async
 	public void listenToEventCreationEvent(EventCreationEvent eventCreationEvent) {
 		@SuppressWarnings("unchecked")
 		List<Employee> employees = (ArrayList<Employee>) eventCreationEvent.getSource();

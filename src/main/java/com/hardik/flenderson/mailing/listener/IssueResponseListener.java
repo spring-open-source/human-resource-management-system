@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.mail.MessagingException;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.hardik.flenderson.enums.EmailTemplate;
@@ -25,13 +26,15 @@ public class IssueResponseListener {
 	private final EmailService emailService;
 
 	@EventListener
+	@Async
 	public void listenToIssueResponseEvent(IssueResponseEvent issueResponseEvent) {
 		var issueResponseReceivedDto = (IssueResponseRecievedDto) issueResponseEvent.getSource();
 		try {
 			emailService.sendEmail(issueResponseReceivedDto.getEmail(), MapUtility.convert(issueResponseReceivedDto),
-					EmailTemplate.ISSUE_RESPONSE_RECIEVED.getName(), EmailTemplate.ISSUE_RESPONSE_RECIEVED.getSubject());
+					EmailTemplate.ISSUE_RESPONSE_RECIEVED.getName(),
+					EmailTemplate.ISSUE_RESPONSE_RECIEVED.getSubject());
 		} catch (MessagingException | IOException | TemplateException e) {
-			log.error("Unable To Send Issue Response Recieved Notification "+e.toString());
+			log.error("Unable To Send Issue Response Recieved Notification " + e.toString());
 		}
 	}
 

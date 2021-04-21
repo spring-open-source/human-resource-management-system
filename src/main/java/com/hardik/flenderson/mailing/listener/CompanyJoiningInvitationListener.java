@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.mail.MessagingException;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.hardik.flenderson.enums.EmailTemplate;
@@ -25,6 +26,7 @@ public class CompanyJoiningInvitationListener {
 	private final EmailService emailService;
 
 	@EventListener
+	@Async
 	public void listenToCompanyJoiningInvitationEvent(CompanyJoiningInvitationEvent companyJoiningInvitationEvent) {
 		var companyJoiningInvitationDto = (CompanyJoinInvitationDto) companyJoiningInvitationEvent.getSource();
 		try {

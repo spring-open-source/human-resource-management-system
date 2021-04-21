@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.mail.MessagingException;
 
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.hardik.flenderson.enums.EmailTemplate;
@@ -25,6 +26,7 @@ public class IssueRecievedListener {
 	private final EmailService emailService;
 
 	@EventListener
+	@Async
 	public void listenToIssueRaisedEvent(IssueRecievedEvent issueRecievedEvent) {
 		var issueReceivedDto = (IssueRecievedDto) issueRecievedEvent.getSource();
 		try {
