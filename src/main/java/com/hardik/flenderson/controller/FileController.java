@@ -2,6 +2,7 @@ package com.hardik.flenderson.controller;
 
 import java.io.IOException;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,8 +24,8 @@ public class FileController {
 	private final StorageService storageService;
 
 	@PutMapping("v1/file")
-	public String retreiveBinaryFileFromKey(@RequestBody(required = true) final String key)
-			throws IOException {
+	@Cacheable(value = "file", key = "#key")
+	public String retreiveBinaryFileFromKey(@RequestBody(required = true) final String key) throws IOException {
 		return Base64.encodeAsString(storageService.getFile(key).getObjectContent().readAllBytes());
 	}
 

@@ -2,6 +2,7 @@ package com.hardik.flenderson.controller;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +23,7 @@ public class MasterCountryController {
 	private final MasterCountryService masterCountryService;
 
 	@GetMapping("v1/countries")
+	@Cacheable(value = "countries")
 	public List<MasterCountryDto> getAllCountries() {
 		return masterCountryService.getAllCountries();
 	}
